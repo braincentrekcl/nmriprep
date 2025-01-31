@@ -34,7 +34,7 @@ dependencies = [
 Homepage = "https://github.com/brainkcl/nmriprep"
 
 [project.scripts]
-argprep = "nmriprep.src.argprep.argprep:main"
+argprep = "nmriprep.argprep.argprep:main"
 
 [tool.hatch.build]
 include = [
