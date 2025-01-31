@@ -16,17 +16,18 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",
     "Intended Audience :: Science/Research",
-    "Topic :: Scientific/Engineering :: Image Processing]"
+    "Topic :: Scientific/Engineering :: Image Processing",
+]
 license = "MIT"
 license-files = ["LICENCE"]
 requires-python = ">=3.9"
 dependencies = [
-    matplotlib,
-    nibabel,
-    numpy,
-    pandas,
-    pillow,
-    rawpy,
+    "matplotlib",
+    "nibabel",
+    "numpy",
+    "pandas",
+    "pillow",
+    "rawpy",
 ]
 
 [project.urls]
