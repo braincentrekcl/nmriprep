@@ -1,0 +1,42 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "nmriprep"
+version = "0.0.1"
+authors = [
+  { name="Eilidh MacNicol", email="eilidh.macnicol@kcl.ac.uk" },
+  { name="Eugene Kim", email="eugene.kim@kcl.ac.uk" },
+]
+description = "Tools to preprocess non-MR neuroimaging data from the BRAIN centre, KCL"
+readme = "README.md"
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Image Processing]"
+license = "MIT"
+license-files = ["LICENCE"]
+requires-python = ">=3.9"
+dependencies = [
+    matplotlib,
+    nibabel,
+    numpy,
+    pandas,
+    pillow,
+    rawpy,
+]
+
+[project.urls]
+Homepage = "https://github.com/brainkcl/nmriprep"
+
+[project.scripts]
+argprep = "nmriprep.src.argprep.argprep:main"
+
+[tool.hatch.build]
+include = [
+    "src/**/*.py",
+    "src/data/*"
+]
