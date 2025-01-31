@@ -139,7 +139,7 @@ def main():
 
         if args.save_tif:
             print("Saving individual files...")
-            for idx, fname in slide_files:
+            for idx, fname in enumerate(slide_files):
                 print(f"{fname.stem}")
                 save_slice(
                     data_radioactivity[..., idx],
