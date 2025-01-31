@@ -38,6 +38,6 @@ argprep = "nmriprep.argprep.argprep:main"
 
 [tool.hatch.build]
 include = [
-    "src/**/*.py",
-    "src/data/*"
+    "nmriprep/**/*.py",
+    "nmriprep/data/*"
 ]
