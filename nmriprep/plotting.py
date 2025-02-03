@@ -60,10 +60,10 @@ def plot_roi(array, out_name, xy, size):
 
 
 def plot_single_slice(array, out_name):
-    plt.imshow(array, cmap='magma', vmax=3000)
+    plt.imshow(array / 1000, cmap='magma', vmax=2)
     plt.axis('off')
     plt.colorbar()
-    plt.title("Radioactivity (uCi/g)")
+    plt.title("Radioactivity (mCi/g)")
     plt.savefig(out_name)
     plt.close()
     return
@@ -107,7 +107,7 @@ def plot_mosaic(array, out_name):
                     array[..., idx] / 1000,
                     cmap='magma',
                     vmin=0,
-                    vmax=3
+                    vmax=2
                 )
             )
         ax.axis('off')
