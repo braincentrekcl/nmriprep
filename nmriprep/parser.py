@@ -69,6 +69,7 @@ def get_parser():
         "--mosaic-slices",
         help="slices indices to include " +
         "in mosaic plot (-1 indicates all slices)",
+        type=int,
         nargs='*'
         )
     parser.add_argument(
