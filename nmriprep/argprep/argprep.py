@@ -165,7 +165,7 @@ def main():
                     )
         if args.mosaic_slices:
             sliced = (
-                data_radioactivity if args.mosaic_slices == -1
+                data_radioactivity if -1 in args.mosaic_slices
                 else data_radioactivity[..., args.mosaic_slices]
             )
             plot_mosaic(sliced, out_dir / f"{out_stem}_desc-preproc_ARG.png")
