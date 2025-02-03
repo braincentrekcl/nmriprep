@@ -66,6 +66,12 @@ def get_parser():
         action="store_true"
         )
     parser.add_argument(
+        "--mosaic-slices",
+        help="slices indices to include " +
+        "in mosaic plot (-1 indicates all slices)",
+        nargs='*'
+        )
+    parser.add_argument(
         "--subject-id",
         help="optional list of subject IDs to process",
         nargs="*"
