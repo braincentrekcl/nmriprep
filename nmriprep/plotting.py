@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
-
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+import numpy as np
 
 def plot_curve(
         std_rad,
@@ -87,33 +88,43 @@ def optimal_subplot_grid(n):
 
 
 def plot_mosaic(array, out_name):
+    # reshape 3d stack to 2d mosaic
     n = array.shape[-1]
     nrows, ncols = optimal_subplot_grid(n)
-    images = []
-    fig, axs = plt.subplots(
-        nrows,
-        ncols,
-        gridspec_kw={
-            'wspace': 0,
-            'hspace': 0
-        }
+    array_padded = np.pad(
+        array / 1000,   # convert from uCi to mCi
+        ((0, 0), (0, 0), (0, nrows*ncols - n))
+    ).transpose((2, 0, 1))
+    array_reshaped = array_padded.reshape(
+        (nrows,
+         ncols,
+         array.shape[0],
+         array.shape[1])
     )
-    fig.set_figheight(nrows * 0.85)
-    for idx, ax in enumerate(axs.flat):
-        if idx < n:
-            images.append(
-                ax.imshow(
-                    # convert to mCi from uCi
-                    array[..., idx] / 1000,
-                    cmap='magma',
-                    vmin=0,
-                    vmax=2
-                )
-            )
-        ax.axis('off')
-    cbar = fig.colorbar(images[0], ax=axs, orientation='vertical', fraction=.1)
+    mosaic = np.vstack(
+        [np.hstack(array_reshaped[i]) for i in range(nrows)]
+    )
+
+    # plot mosaic
+    fig, ax = plt.subplots()
+    fig.set_tight_layout(True)
+    im = ax.imshow(
+        mosaic,
+        cmap='magma',
+        vmax=np.round(
+            np.quantile(mosaic[mosaic > 0], 0.99),
+            decimals=1
+        )
+    )
+    ax.axis('off')
+
+    # add colorbar
+    divider = make_axes_locatable(ax)
+    ax_cb = divider.append_axes("right", size="5%", pad=0.05)
+    cbar = fig.colorbar(im, cax=ax_cb, orientation="vertical")
     cbar.ax.tick_params(labelsize=16)
     cbar.set_label('Radioactivity (mCi/g)', fontsize=16)
+
     fig.savefig(out_name)
     plt.close()
     return
