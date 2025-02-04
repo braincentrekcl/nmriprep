@@ -126,6 +126,6 @@ def plot_mosaic(array, out_name):
     cbar.ax.tick_params(labelsize=16)
     cbar.set_label('Radioactivity (mCi/g)', fontsize=16)
 
-    fig.savefig(out_name)
+    fig.savefig(out_name, bbox_inches="tight")
     plt.close()
     return
