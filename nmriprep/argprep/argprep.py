@@ -4,7 +4,7 @@ import numpy as np
 from .calibration import calibrate_standard
 from ..parser import get_parser
 from ..image import convert_nef_to_grey, read_tiff, save_slice
-from ..plotting import plot_curve, plot_single_slice
+from ..plotting import plot_curve, plot_single_slice, plot_mosaic
 from ..utils import find_files, rodbard, inverse_rodbard
 
 
@@ -163,6 +163,12 @@ def main():
                         data_rad=data_radioactivity[..., idx].ravel(),
                         data_gv=data_gv[..., idx].ravel(),
                     )
+        if args.mosaic_slices:
+            sliced = (
+                data_radioactivity if -1 in args.mosaic_slices
+                else data_radioactivity[..., args.mosaic_slices]
+            )
+            plot_mosaic(sliced, out_dir / f"{out_stem}_desc-preproc_ARG.png")
 
 
 if __name__ == "__main__":
