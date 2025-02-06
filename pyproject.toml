@@ -23,6 +23,7 @@ license-files = ["LICENCE"]
 requires-python = ">=3.9"
 dependencies = [
     "matplotlib",
+    "napari",
     "nibabel",
     "numpy",
     "pandas",
