@@ -2,14 +2,14 @@ import nibabel as nb
 import numpy as np
 
 from .calibration import calibrate_standard
-from ..parser import get_parser
+from ..parser import get_argprep_parser
 from ..image import convert_nef_to_grey, read_tiff, save_slice
 from ..plotting import plot_curve, plot_single_slice, plot_mosaic
 from ..utils import find_files, rodbard, inverse_rodbard
 
 
 def main():
-    args = get_parser().parse_args()
+    args = get_argprep_parser().parse_args()
     src_dir = args.source_directory.absolute()
     out_dir = src_dir.parent / "preproc" if not args.output else args.output
     verbose = args.save_intermediate

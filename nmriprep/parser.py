@@ -2,7 +2,7 @@ from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from pathlib import Path
 
 
-def get_parser():
+def get_argprep_parser():
     """Build parser object."""
 
     parser = ArgumentParser(
