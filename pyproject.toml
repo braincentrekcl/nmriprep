@@ -28,6 +28,7 @@ dependencies = [
     "pandas",
     "pillow",
     "rawpy",
+    "scikit-image",
 ]
 
 [project.urls]
