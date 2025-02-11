@@ -78,3 +78,35 @@ def get_argprep_parser():
         nargs="*"
     )
     return parser
+
+
+def get_roiextract_parser():
+    """Build parser object."""
+
+    parser = ArgumentParser(
+        description="Extract data from ROIs defined" +
+        " by napari ROI manager .json files",
+        formatter_class=ArgumentDefaultsHelpFormatter
+    )
+    parser.add_argument(
+        "source_directory",
+        help="raw data directory",
+        type=Path
+    )
+    parser.add_argument(
+        "--image-suffix",
+        help="suffix replacing `rois` in .tif files",
+        default="ARG"
+    )
+    parser.add_argument(
+        "--roi-suffix",
+        help="suffix of ROI .json files",
+        default="rois"
+    )
+    parser.add_argument(
+        "--output",
+        help="name of output .json file",
+        default="roi_values",
+        type=str
+    )
+    return parser
