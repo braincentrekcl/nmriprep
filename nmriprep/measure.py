@@ -24,10 +24,10 @@ def roi_extract():
         for roi_file in roi_files:
             print(f"Processing {roi_file}")
             # read the corresponding image file and confirm it exists
-            img_file = (
-                roi_file.parent /
-                roi_file.stem.replace(roi_suffix, f"{img_suffix}.tif")
-            )
+            img_name = roi_file.stem.replace(roi_suffix, f"{img_suffix}.tif*")
+            img_file = list(
+                roi_file.parent.glob(img_name)
+            )[0]
             assert img_file.exists()
             img_data = read_tiff(img_file)
 
