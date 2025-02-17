@@ -44,7 +44,12 @@ def plot_curve(
 def plot_roi(array, out_name, xy, size):
     from matplotlib.patches import Rectangle
 
-    plt.imshow(array, cmap="gray_r")
+    plt.imshow(
+        array,
+        cmap="gray_r",
+        vmin=60000,
+        vmax=2**16
+    )
     plt.gca().add_patch(
         Rectangle(
             xy=xy,
