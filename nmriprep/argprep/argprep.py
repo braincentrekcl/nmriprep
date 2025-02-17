@@ -92,19 +92,19 @@ def main():
             axis=2
         )
 
+        if args.rotate > 0:
+            data_gv = np.rot90(
+                data_gv,
+                k=args.rotate,
+                axes=(0, 1)
+            )
+
         # calibrate slice data
         print("Converting slide data to radioactivity")
         data_radioactivity = inverse_rodbard(data_gv, *popt)
         # clip "negative" values
         data_radioactivity[np.isnan(data_radioactivity)] = 0
         print("Success! Generating output...")
-
-        if args.rotate > 0:
-            data_radioactivity = np.rot90(
-                data_radioactivity,
-                k=args.rotate,
-                axes=(0, 1)
-            )
 
         out_stem = std_stem.split('_standard')[0]
 
