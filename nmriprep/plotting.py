@@ -4,39 +4,17 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 
 def plot_curve(
-        std_rad,
-        std_gv,
-        fitted_gv,
-        out_dir,
-        out_stem,
-        data_rad=None,
-        data_gv=None
+    std_rad, std_gv, fitted_gv, out_dir, out_stem, data_rad=None, data_gv=None
 ):
     if data_rad is not None and data_gv is not None:
-        plt.scatter(
-            data_rad,
-            data_gv,
-            label="Data values",
-            alpha=0.5
-        )
-    plt.plot(
-        std_rad,
-        fitted_gv,
-        label="Curve fit",
-        color="black"
-    )
-    plt.scatter(
-        std_rad,
-        std_gv,
-        label="Standard values",
-        marker="x",
-        color="red"
-    )
+        plt.scatter(data_rad, data_gv, label='Data values', alpha=0.5)
+    plt.plot(std_rad, fitted_gv, label='Curve fit', color='black')
+    plt.scatter(std_rad, std_gv, label='Standard values', marker='x', color='red')
     plt.legend(loc=4)
-    plt.xlabel("Radioactivity (uCi/g)")
-    plt.ylabel("Inverted image grey values")
-    plt.title(f"{out_stem} calibration curve")
-    plt.savefig(f"{out_dir / out_stem}_calibration.png")
+    plt.xlabel('Radioactivity (uCi/g)')
+    plt.ylabel('Inverted image grey values')
+    plt.title(f'{out_stem} calibration curve')
+    plt.savefig(f'{out_dir / out_stem}_calibration.png')
     plt.close()
     return
 
@@ -46,18 +24,9 @@ def plot_roi(array, roi, out_name):
 
     contour = find_contours(roi)[0]
 
-    plt.imshow(
-        array,
-        cmap="gray_r",
-        vmin=60000,
-        vmax=2**16
-    )
-    plt.gca().plot(
-        contour[:,1],
-        contour[:,0],
-        color="red"
-    )
-    plt.axis("off")
+    plt.imshow(array, cmap='gray_r', vmin=60000, vmax=2**16)
+    plt.gca().plot(contour[:, 1], contour[:, 0], color='red')
+    plt.axis('off')
     plt.colorbar()
     plt.savefig(out_name)
     plt.close()
@@ -68,7 +37,7 @@ def plot_single_slice(array, out_name):
     plt.imshow(array / 1000, cmap='magma', vmax=2)
     plt.axis('off')
     plt.colorbar()
-    plt.title("Radioactivity (mCi/g)")
+    plt.title('Radioactivity (mCi/g)')
     plt.savefig(out_name)
     plt.close()
     return
@@ -96,18 +65,13 @@ def plot_mosaic(array, out_name):
     n = array.shape[-1]
     nrows, ncols = optimal_subplot_grid(n)
     array_padded = np.pad(
-        array / 1000,   # convert from uCi to mCi
-        ((0, 0), (0, 0), (0, nrows*ncols - n))
+        array / 1000,  # convert from uCi to mCi
+        ((0, 0), (0, 0), (0, nrows * ncols - n)),
     ).transpose((2, 0, 1))
     array_reshaped = array_padded.reshape(
-        (nrows,
-         ncols,
-         array.shape[0],
-         array.shape[1])
+        (nrows, ncols, array.shape[0], array.shape[1])
     )
-    mosaic = np.vstack(
-        [np.hstack(array_reshaped[i]) for i in range(nrows)]
-    )
+    mosaic = np.vstack([np.hstack(array_reshaped[i]) for i in range(nrows)])
 
     # plot mosaic
     fig, ax = plt.subplots()
@@ -115,20 +79,17 @@ def plot_mosaic(array, out_name):
     im = ax.imshow(
         mosaic,
         cmap='magma',
-        vmax=np.round(
-            np.quantile(mosaic[mosaic > 0], 0.99),
-            decimals=1
-        )
+        vmax=np.round(np.quantile(mosaic[mosaic > 0], 0.99), decimals=1),
     )
     ax.axis('off')
 
     # add colorbar
     divider = make_axes_locatable(ax)
-    ax_cb = divider.append_axes("right", size="5%", pad=0.05)
-    cbar = fig.colorbar(im, cax=ax_cb, orientation="vertical")
+    ax_cb = divider.append_axes('right', size='5%', pad=0.05)
+    cbar = fig.colorbar(im, cax=ax_cb, orientation='vertical')
     cbar.ax.tick_params(labelsize=16)
     cbar.set_label('Radioactivity (mCi/g)', fontsize=16)
 
-    fig.savefig(out_name, bbox_inches="tight")
+    fig.savefig(out_name, bbox_inches='tight')
     plt.close()
     return

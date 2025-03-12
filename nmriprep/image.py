@@ -8,10 +8,7 @@ from .utils import rgb_to_grey, symmetrical_crop
 def read_nef(path_to_file: str):
     with rawpy.imread(path_to_file) as raw:
         return raw.postprocess(
-            use_camera_wb=True,
-            no_auto_scale=True,
-            no_auto_bright=True,
-            output_bps=16
+            use_camera_wb=True, no_auto_scale=True, no_auto_bright=True, output_bps=16
         )
 
 
@@ -26,14 +23,14 @@ def save_slice(array, out_name):
 
 
 def convert_nef_to_grey(
-        nef_file,
-        crop_row=None,
-        crop_col=None,
-        flatfield_correction=None,
-        invert=False,
+    nef_file,
+    crop_row=None,
+    crop_col=None,
+    flatfield_correction=None,
+    invert=False,
 ):
     # Load the NEF file using rawpy
-    print(f"Reading {nef_file.name}")
+    print(f'Reading {nef_file.name}')
     rgb = read_nef(str(nef_file))
     grey = rgb_to_grey(rgb, flatfield_corr=flatfield_correction, invert=invert)
 

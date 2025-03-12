@@ -6,10 +6,7 @@ def find_files(search_map):
 
 
 def do_flatfield_correction(im, flatfield, darkfield):
-    return (
-        (im - darkfield) * np.mean(flatfield - darkfield)
-        / (flatfield - darkfield)
-    )
+    return (im - darkfield) * np.mean(flatfield - darkfield) / (flatfield - darkfield)
 
 
 def rgb_to_grey(rgb: np.array, flatfield_corr=None, invert=False):
@@ -18,9 +15,7 @@ def rgb_to_grey(rgb: np.array, flatfield_corr=None, invert=False):
     grey = np.dot(rgb, [0.2989, 0.5870, 0.1140])
     if flatfield_corr:
         grey = do_flatfield_correction(
-            grey,
-            flatfield_corr['flat'],
-            flatfield_corr['dark']
+            grey, flatfield_corr['flat'], flatfield_corr['dark']
         )
 
     #  NB: the data inversion is to ensure that the darkest pixels
@@ -32,10 +27,7 @@ def rgb_to_grey(rgb: np.array, flatfield_corr=None, invert=False):
 
 
 def symmetrical_crop(range_array, quantile):
-    return np.quantile(
-        np.arange(range_array),
-        quantile
-    ).astype(int)
+    return np.quantile(np.arange(range_array), quantile).astype(int)
 
 
 def greyval_to_relative_OD(data: np.uint, bit=16):
@@ -55,11 +47,11 @@ def greyval_to_relative_OD(data: np.uint, bit=16):
 
 
 def rodbard(x, min_, slope, ed50, max_):
-    return max_ + ((min_ - max_) / (1.0 + (x/ed50)**slope))
+    return max_ + ((min_ - max_) / (1.0 + (x / ed50) ** slope))
 
 
 def inverse_rodbard(y, min_, slope, ed50, max_):
     # inverse rodbard
     # https://www.myassays.com/four-parameter-logistic-regression.html
 
-    return ed50 * (((min_ - max_) / (y - max_)) - 1.0) ** (1.0/slope)
+    return ed50 * (((min_ - max_) / (y - max_)) - 1.0) ** (1.0 / slope)

@@ -17,18 +17,16 @@ def roi_extract():
     output_name = args.output
 
     # find the ROI files
-    roi_files = input_dir.rglob(f"*{roi_suffix}.json")
+    roi_files = input_dir.rglob(f'*{roi_suffix}.json')
     if not roi_files:
-        print("No ROI files found")
+        print('No ROI files found')
     else:
         roi_values = []
         for roi_file in roi_files:
-            print(f"Processing {roi_file}")
+            print(f'Processing {roi_file}')
             # read the corresponding image file and confirm it exists
-            img_name = roi_file.stem.replace(roi_suffix, f"{img_suffix}.tif*")
-            img_file = list(
-                roi_file.parent.glob(img_name)
-            )[0]
+            img_name = roi_file.stem.replace(roi_suffix, f'{img_suffix}.tif*')
+            img_file = list(roi_file.parent.glob(img_name))[0]
             assert img_file.exists()
             img_data = read_tiff(img_file)
 
@@ -39,17 +37,15 @@ def roi_extract():
                         [
                             img_file.stem,
                             x['names'],
-                            img_data[
-                                grid_points_in_poly(img_data.shape, x['data'])
-                            ]
+                            img_data[grid_points_in_poly(img_data.shape, x['data'])],
                         ],
-                        index=['image', 'roi', 'values']),
-                    axis=1
+                        index=['image', 'roi', 'values'],
+                    ),
+                    axis=1,
                 )
             )
 
-        pd.concat(
-            roi_values,
-            ignore_index=True
-        ).to_json(input_dir / f"{output_name}.json")
+        pd.concat(roi_values, ignore_index=True).to_json(
+            input_dir / f'{output_name}.json'
+        )
     return
