@@ -43,3 +43,9 @@ include = [
     "nmriprep/**/*.py",
     "nmriprep/data/*"
 ]
+
+[tool.ruff.lint]
+extend-select = ["W", "I", "PD", "NPY", "PTH", "ARG"]
+
+[tool.ruff.format]
+quote-style = "single"

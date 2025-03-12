@@ -1,17 +1,17 @@
 import nibabel as nb
 import numpy as np
 
-from .calibration import calibrate_standard
-from ..parser import get_argprep_parser
 from ..image import convert_nef_to_grey, read_tiff, save_slice
-from ..plotting import plot_curve, plot_single_slice, plot_mosaic
-from ..utils import find_files, rodbard, inverse_rodbard
+from ..parser import get_argprep_parser
+from ..plotting import plot_curve, plot_mosaic, plot_single_slice
+from ..utils import find_files, inverse_rodbard, rodbard
+from .calibration import calibrate_standard
 
 
 def main():
     args = get_argprep_parser().parse_args()
     src_dir = args.source_directory.absolute()
-    out_dir = src_dir.parent / "preproc" if not args.output else args.output
+    out_dir = src_dir.parent / 'preproc' if not args.output else args.output
     verbose = args.save_intermediate
 
     # attempt to find flat field info
@@ -21,36 +21,38 @@ def main():
         flatfield_correction['flat'] = read_tiff(args.flat_field)
     else:
         # try searching for a preprocessed darkfield
-        latest_ff = find_files(out_dir.glob("*flatfield.tiff"))
-        latest_df = find_files(out_dir.glob("*darkfield.tiff"))
+        latest_ff = find_files(out_dir.glob('*flatfield.tiff'))
+        latest_df = find_files(out_dir.glob('*darkfield.tiff'))
         if latest_ff and latest_df:
             flatfield_correction['dark'] = read_tiff(latest_df[-1])
             flatfield_correction['flat'] = read_tiff(latest_ff[-1])
         else:
-            print("Skipping flat field correction...")
+            print('Skipping flat field correction...')
             flatfield_correction = None
 
     # identify subjects for pipeline
-    all_subject_ids = set([
-        part.split('-')[1]
-        for fpath in src_dir.glob('*.nef')
-        for part in fpath.stem.split('_')
-        if "subj" in part
-    ])
+    all_subject_ids = set(
+        [
+            part.split('-')[1]
+            for fpath in src_dir.glob('*.nef')
+            for part in fpath.stem.split('_')
+            if 'subj' in part
+        ]
+    )
 
     if args.subject_id:
-        print(f"Processing subjects: {args.subject_id}")
+        print(f'Processing subjects: {args.subject_id}')
         subjects_to_process = [
             subj for subj in all_subject_ids if subj in args.subject_id
         ]
     else:
-        print("Processing all subjects")
+        print('Processing all subjects')
         subjects_to_process = all_subject_ids
 
     for sub_id in subjects_to_process:
         sub_dir = out_dir / sub_id
         sub_dir.mkdir(exist_ok=True, parents=True)
-        fig_dir = sub_dir / "figures"
+        fig_dir = sub_dir / 'figures'
         fig_dir.mkdir(exist_ok=True)
 
         # calibrate standards to transform GV to radioactivity
@@ -63,49 +65,39 @@ def main():
         )
 
         if verbose:
-            plot_curve(
-                std_rad,
-                std_gv,
-                rodbard(std_rad, *popt),
-                sub_dir,
-                std_stem
-            )
+            plot_curve(std_rad, std_gv, rodbard(std_rad, *popt), sub_dir, std_stem)
 
-        print(f"success! fitting data with parameters: {popt}")
+        print(f'success! fitting data with parameters: {popt}')
 
         # find subject files
         slide_files = find_files(src_dir.glob(f'*subj-{sub_id}*slide*.nef'))
         if len(slide_files) < 1:
-            raise FileNotFoundError(
-                f"No slide files found for {sub_id} in {src_dir}"
-            )
+            raise FileNotFoundError(f'No slide files found for {sub_id} in {src_dir}')
 
         # convert nefs to grey value
-        data_gv = np.stack([
-            convert_nef_to_grey(
-                fname,
-                flatfield_correction=flatfield_correction,
-                crop_row=args.crop_height,
-                crop_col=args.crop_width,
-                invert=True,
-            ) for fname in slide_files
+        data_gv = np.stack(
+            [
+                convert_nef_to_grey(
+                    fname,
+                    flatfield_correction=flatfield_correction,
+                    crop_row=args.crop_height,
+                    crop_col=args.crop_width,
+                    invert=True,
+                )
+                for fname in slide_files
             ],
-            axis=2
+            axis=2,
         )
 
         if args.rotate > 0:
-            data_gv = np.rot90(
-                data_gv,
-                k=args.rotate,
-                axes=(0, 1)
-            )
+            data_gv = np.rot90(data_gv, k=args.rotate, axes=(0, 1))
 
         # calibrate slice data
-        print("Converting slide data to radioactivity")
+        print('Converting slide data to radioactivity')
         data_radioactivity = inverse_rodbard(data_gv, *popt)
         # clip "negative" values
         data_radioactivity[np.isnan(data_radioactivity)] = 0
-        print("Success! Generating output...")
+        print('Success! Generating output...')
 
         out_stem = std_stem.split('_standard')[0]
 
@@ -113,45 +105,44 @@ def main():
             # write out nii image (e.g. for Jim)
             # find information on number of slides from last file name
             last_section_parts = slide_files[-1].stem.split('_')
-            max_slide = int([
-                last_section_parts[idx].split('-')[-1] for idx, val
-                in enumerate(
-                    last_section_parts
-                ) if "slide" in val
-            ][0])
+            max_slide = int(
+                [
+                    last_section_parts[idx].split('-')[-1]
+                    for idx, val in enumerate(last_section_parts)
+                    if 'slide' in val
+                ][0]
+            )
 
             # iterate through slides and collect sections to concatenate
             for slide_no in range(max_slide):
                 slide_val = str(slide_no + 1).zfill(2)
                 slide_sections = {
                     fname: idx
-                    for idx, fname in
-                    enumerate(slide_files)
-                    if f"slide-{str(slide_val).zfill(2)}" in str(fname.stem)
+                    for idx, fname in enumerate(slide_files)
+                    if f'slide-{str(slide_val).zfill(2)}' in str(fname.stem)
                 }
 
                 nb.Nifti1Image(
                     data_radioactivity[..., sorted(slide_sections.values())],
                     affine=None,
                 ).to_filename(
-                    sub_dir /
-                    f"{out_stem}_slide-{slide_val}_desc-preproc_ARG.nii.gz"
+                    sub_dir / f'{out_stem}_slide-{slide_val}_desc-preproc_ARG.nii.gz'
                 )
 
         if args.save_tif:
-            print("Saving individual files...")
+            print('Saving individual files...')
             for idx, fname in enumerate(slide_files):
-                print(f"{fname.stem}")
+                print(f'{fname.stem}')
                 save_slice(
                     data_radioactivity[..., idx],
-                    sub_dir / f"{fname.stem}_desc-preproc_ARG.tif"
+                    sub_dir / f'{fname.stem}_desc-preproc_ARG.tif',
                 )
 
                 if verbose:
                     # plot image
                     plot_single_slice(
                         data_radioactivity[..., idx],
-                        fig_dir / f"{fname.stem}_desc-preproc_ARG.png"
+                        fig_dir / f'{fname.stem}_desc-preproc_ARG.png',
                     )
 
                     # plot fits
@@ -166,11 +157,12 @@ def main():
                     )
         if args.mosaic_slices:
             sliced = (
-                data_radioactivity if -1 in args.mosaic_slices
+                data_radioactivity
+                if -1 in args.mosaic_slices
                 else data_radioactivity[..., args.mosaic_slices]
             )
-            plot_mosaic(sliced, out_dir / f"{out_stem}_desc-preproc_ARG.png")
+            plot_mosaic(sliced, out_dir / f'{out_stem}_desc-preproc_ARG.png')
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

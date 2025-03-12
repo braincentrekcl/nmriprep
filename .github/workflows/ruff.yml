@@ -1,0 +1,22 @@
+name: Ruff
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  ruff:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: List lint issues
+        uses: astral-sh/ruff-action@v3
+
+      - name: List format issues
+        uses: astral-sh/ruff-action@v3
+        with:
+            args: "format --check"
