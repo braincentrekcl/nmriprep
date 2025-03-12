@@ -42,9 +42,9 @@ def plot_curve(
 
 
 def plot_roi(array, roi, out_name):
-    from skimage import measure
+    from skimage.measure import find_contours
 
-    contour = measure.find_contours(roi)
+    contour = find_contours(roi)[0]
 
     plt.imshow(
         array,
@@ -53,8 +53,8 @@ def plot_roi(array, roi, out_name):
         vmax=2**16
     )
     plt.gca().plot(
-        contour[0][:,1],
-        contour[0][:,0],
+        contour[:,1],
+        contour[:,0],
         color="red"
     )
     plt.axis("off")
