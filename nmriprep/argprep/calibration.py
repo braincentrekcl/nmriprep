@@ -63,11 +63,10 @@ def get_standard_value(
 
         square_apothem = 100
         mode = statistics.mode(
-            get_image_patch(
-                regions,
-                center_coord,
-                100
-             ).ravel()
+            regions[
+                get_image_patch(center_coord[0]),
+                get_image_patch(centre_coord[1])
+            ].ravel()
         )
 
         if (peaks.size == 2) & (mode == 1):     # background image
@@ -91,11 +90,10 @@ def get_standard_value(
     elif label_image.max() == 0:
         roi = np.zeros_like(gray_thresh)
         square_apothem = np.round(square_size / 2).astype(int)
-        get_image_patch(
-            roi,
-            center_coord,
-            np.round(square_size / 2).astype(int)
-        ) = True
+        roi[
+            get_image_patch(center_coord[0], square_apothem),
+            get_image_patch(center_coord[1], square_apothem)
+        ] = True
         if np.any(foreground):
             roi = roi & foreground
     else:
