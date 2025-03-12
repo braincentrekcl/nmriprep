@@ -42,7 +42,11 @@ def get_standard_value(
         foreground = np.zeros_like(gray_thresh)
         label_image = measure.label(gray_thresh)
     else:
-        troughs, _ = find_peaks(hist.max() - hist, distance=5, prominence=gray_medfilt.size/100)
+        troughs, _ = find_peaks(
+            hist.max() - hist,
+            distance=5,
+            prominence=gray_medfilt.size/100
+        )
         peak_loc = bin_centers[peaks]
         trough_loc = bin_centers[troughs]
         thresholds=[]
