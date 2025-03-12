@@ -41,8 +41,10 @@ def plot_curve(
     return
 
 
-def plot_roi(array, out_name, xy, size):
-    from matplotlib.patches import Rectangle
+def plot_roi(array, roi, out_name):
+    from skimage import measure
+
+    contour = measure.find_contours(roi)
 
     plt.imshow(
         array,
@@ -50,14 +52,10 @@ def plot_roi(array, out_name, xy, size):
         vmin=60000,
         vmax=2**16
     )
-    plt.gca().add_patch(
-        Rectangle(
-            xy=xy,
-            height=size,
-            width=size,
-            edgecolor='red',
-            fill=False
-        )
+    plt.gca().plot(
+        contour[0][:,1],
+        contour[0][:,0],
+        color="red"
     )
     plt.axis("off")
     plt.colorbar()

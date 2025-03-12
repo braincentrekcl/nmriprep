@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import json
 
-from ..image import convert_nef_to_grey, save_slice
+from ..image import convert_nef_to_grey
 from ..plotting import plot_roi
 from ..utils import find_files, rodbard
 
@@ -65,7 +65,7 @@ def get_standard_value(
         mode = statistics.mode(
             regions[
                 get_image_patch(center_coord[0]),
-                get_image_patch(centre_coord[1])
+                get_image_patch(center_coord[1])
             ].ravel()
         )
 
