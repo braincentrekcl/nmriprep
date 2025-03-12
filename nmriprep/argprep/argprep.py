@@ -1,11 +1,11 @@
 import nibabel as nb
 import numpy as np
 
-from .calibration import calibrate_standard
-from ..parser import get_argprep_parser
 from ..image import convert_nef_to_grey, read_tiff, save_slice
-from ..plotting import plot_curve, plot_single_slice, plot_mosaic
-from ..utils import find_files, rodbard, inverse_rodbard
+from ..parser import get_argprep_parser
+from ..plotting import plot_curve, plot_mosaic, plot_single_slice
+from ..utils import find_files, inverse_rodbard, rodbard
+from .calibration import calibrate_standard
 
 
 def main():

@@ -1,7 +1,8 @@
 import importlib.resources
+import json
+
 import numpy as np
 import pandas as pd
-import json
 
 from ..image import convert_nef_to_grey
 from ..plotting import plot_roi
@@ -21,20 +22,21 @@ def get_standard_value(
         square_size=900,
         roi_fig_name=None
 ):
-    from skimage.util import img_as_ubyte
-    from skimage import morphology, measure
+    import statistics
+
+    from scipy.ndimage import binary_fill_holes
+    from scipy.signal import find_peaks
+    from scipy.spatial import distance
+    from skimage import measure, morphology
+    from skimage.exposure import histogram
     from skimage.filters import rank
     from skimage.segmentation import clear_border
-    from scipy.ndimage import binary_fill_holes
-    from scipy.spatial import distance
-    from skimage.exposure import histogram
-    from scipy.signal import find_peaks
-    import statistics
+    from skimage.util import img_as_ubyte
 
     print(f"extracting ROI for {roi_fig_name.stem}")
 
     center_coord = np.round( np.array(array.shape) / 2 ).astype(int)
-    
+
     strel_med = morphology.disk(medfilt_radius)
     gray_medfilt = rank.median(
         img_as_ubyte(array / array.max()),
@@ -107,7 +109,7 @@ def get_standard_value(
             roi,
             out_name=roi_fig_name
         )
-        
+
     return np.median(gray[roi])
 
 
@@ -118,8 +120,9 @@ def calibrate_standard(
         flatfield_correction=None,
         out_dir=None
 ):
-    from .. import data
     from scipy.optimize import curve_fit
+
+    from .. import data
 
     # load standard information
     with importlib.resources.open_text(data, "standards.json") as f:
@@ -173,7 +176,7 @@ def calibrate_standard(
     out_stem = standard_files[0].stem[:-3]
     if out_dir:
         standards_df.to_json(f"{out_dir / out_stem}_standards.json")
-        with open(out_dir / f"{out_stem}_calibration.json", 'w') as f:
+        with out_dir / f"{out_stem}_calibration.json".open(mode='w') as f:
             json.dump(
                 dict(zip(["min", "slope", "ED50", "max"], popt)),
                 f
