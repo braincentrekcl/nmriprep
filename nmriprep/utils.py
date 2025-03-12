@@ -28,10 +28,7 @@ def rgb_to_grey(rgb: np.array, flatfield_corr=None, invert=False):
     # grey values and the lightest pixels (the most transparent)
     # have the lowest values. This is not the case in photographic
     # images where bright pixels often have the highest values
-    if invert:
-        return np.invert(grey.astype(np.uint16))
-    else:
-        return grey
+    return np.invert(grey.astype(np.uint16)) if invert else grey
 
 
 def symmetrical_crop(range_array, quantile):
