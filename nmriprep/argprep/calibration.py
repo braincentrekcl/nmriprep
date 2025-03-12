@@ -9,12 +9,10 @@ from ..utils import find_files, rodbard
 
 
 def get_image_patch(
-        image,
         center_coord,
-        square_apothem
+        square_apothem: int = 100
 ):
-    return image[(center_coord[0] - square_apothem):(center_coord[0] + square_apothem),
-        (center_coord[1] - square_apothem):(center_coord[1] + square_apothem)]
+    return slice(center_coord - square_apothem, center_coord + square_apothem)
 
 
 def get_standard_value(
