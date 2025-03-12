@@ -87,6 +87,7 @@ def main():
                 flatfield_correction=flatfield_correction,
                 crop_row=args.crop_height,
                 crop_col=args.crop_width,
+                invert=True,
             ) for fname in slide_files
             ],
             axis=2

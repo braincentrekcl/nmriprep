@@ -29,11 +29,12 @@ def convert_nef_to_grey(
         crop_row=None,
         crop_col=None,
         flatfield_correction=None,
+        invert=False,
 ):
     # Load the NEF file using rawpy
     print(f"Reading {nef_file.name}")
     rgb = read_nef(str(nef_file))
-    grey = rgb_to_grey(rgb, flatfield_corr=flatfield_correction)
+    grey = rgb_to_grey(rgb, flatfield_corr=flatfield_correction, invert=invert)
 
     if crop_row:
         row_lim = symmetrical_crop(grey.shape[0], crop_row)

@@ -12,7 +12,7 @@ def do_flatfield_correction(im, flatfield, darkfield):
     )
 
 
-def rgb_to_grey(rgb: np.array, flatfield_corr=None):
+def rgb_to_grey(rgb: np.array, flatfield_corr=None, invert=False):
     # Luminosity method to convert rgb to greyscale:
     # Grey = 0.2989*R + 0.5870*G + 0.1140*B
     grey = np.dot(rgb, [0.2989, 0.5870, 0.1140])
@@ -28,7 +28,7 @@ def rgb_to_grey(rgb: np.array, flatfield_corr=None):
     # grey values and the lightest pixels (the most transparent)
     # have the lowest values. This is not the case in photographic
     # images where bright pixels often have the highest values
-    return np.invert(grey.astype(np.uint16))
+    return np.invert(grey.astype(np.uint16)) if invert else grey
 
 
 def symmetrical_crop(range_array, quantile):
