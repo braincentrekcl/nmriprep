@@ -8,8 +8,18 @@ from ..plotting import plot_roi
 from ..utils import find_files, rodbard
 
 
+def get_image_patch(
+        image,
+        center_coord,
+        square_apothem
+):
+    return image[(center_coord[0] - square_apothem):(center_coord[0] + square_apothem),
+        (center_coord[1] - square_apothem):(center_coord[1] + square_apothem)]
+
+
 def get_standard_value(
         array,
+        medfilt_radius=40,
         square_size=900,
         roi_fig_name=None
 ):
@@ -27,9 +37,7 @@ def get_standard_value(
 
     center_coord = np.round( np.array(array.shape) / 2 ).astype(int)
     
-    radius_med = 40
-    strel_med = morphology.disk(radius_med)
-
+    strel_med = morphology.disk(medfilt_radius)
     gray_medfilt = rank.median(
         img_as_ubyte(array / array.max()),
         strel_med
@@ -56,8 +64,13 @@ def get_standard_value(
             regions = np.digitize(gray_medfilt, bins=thresholds)
 
         square_apothem = 100
-        mode = statistics.mode(regions[(center_coord[0] - square_apothem):(center_coord[0] + square_apothem),
-            (center_coord[1] - square_apothem):(center_coord[1] + square_apothem)].ravel())
+        mode = statistics.mode(
+            get_image_patch(
+                regions,
+                center_coord,
+                100
+             ).ravel()
+        )
 
         if (peaks.size == 2) & (mode == 1):     # background image
             gray_thresh = np.zeros_like(regions).astype(bool)
@@ -80,8 +93,11 @@ def get_standard_value(
     elif label_image.max() == 0:
         roi = np.zeros_like(gray_thresh)
         square_apothem = np.round(square_size / 2).astype(int)
-        roi[(center_coord[0] - square_apothem):(center_coord[0] + square_apothem),
-            (center_coord[1] - square_apothem):(center_coord[1] + square_apothem)] = True
+        get_image_patch(
+            roi,
+            center_coord,
+            np.round(square_size / 2).astype(int)
+        ) = True
         if np.any(foreground):
             roi = roi & foreground
     else:
