@@ -1,8 +1,18 @@
+from re import findall
+
 import numpy as np
 
 
 def find_files(search_map):
     return sorted([fname for fname in search_map])
+
+
+def parse_kv(fname: str) -> dict[str, str]:
+    return {
+        k: v for part in fname.split('_')
+        if '-' in part
+        for k, v in findall(r'(\w+)-([\w\d]+)', part)
+    }
 
 
 def do_flatfield_correction(im, flatfield, darkfield):
