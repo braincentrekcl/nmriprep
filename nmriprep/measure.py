@@ -23,7 +23,7 @@ def roi_extract():
     else:
         roi_values = []
         for roi_file in roi_files:
-            print(f'Processing {roi_file}')
+            print(f'Processing {roi_file.name}')
             # read the corresponding image file and confirm it exists
             img_name = roi_file.stem.replace(roi_suffix, f'{img_suffix}.tif*')
             img_file = list(roi_file.parent.glob(img_name))[0]
