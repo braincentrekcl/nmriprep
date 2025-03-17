@@ -29,6 +29,9 @@ def roi_extract():
             img_file = list(input_dir.rglob(
                 roi_file.stem.replace(roi_suffix, f'{img_suffix}.tif*')
             ))[0]
+            if any(["exclu" in str(path) for path in [img_file, roi_file]]):
+                print(f'Excluding {roi_file}')
+                continue
             img_data = read_tiff(img_file)
             img_info = parse_kv(img_file.stem)
 
