@@ -25,9 +25,9 @@ def roi_extract():
         for roi_file in roi_files:
             print(f'Processing {roi_file.name}')
             # read the corresponding image file and confirm it exists
-            img_name = roi_file.stem.replace(roi_suffix, f'{img_suffix}.tif*')
-            img_file = list(roi_file.parent.glob(img_name))[0]
-            assert img_file.exists()
+            img_file = list(input_dir.rglob(
+                roi_file.stem.replace(roi_suffix, f'{img_suffix}.tif*')
+            ))[0]
             img_data = read_tiff(img_file)
 
             roi_df = pd.read_json(roi_file)
