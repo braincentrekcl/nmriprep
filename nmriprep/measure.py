@@ -43,7 +43,14 @@ def roi_extract():
             out_df = out_df.assign(**img_info)
             roi_values.append(out_df)
 
-        pd.concat(roi_values, ignore_index=True).to_json(
-            input_dir / f'{output_name}.json'
-        )
+        main_df = pd.concat(roi_values, ignore_index=True)
+        if args.grouping_vars:
+            main_df.groupby(
+                args.grouping_vars, as_index=False)[
+                    ['median_value', 'mean_value', 'min_value', 'max_value', 'std_value', 'size']
+                ].median().to_csv(input_dir / f'{output_name}.csv', index=False)
+        else:
+            main_df.to_json(
+                input_dir / f'{output_name}.json'
+            )
     return
