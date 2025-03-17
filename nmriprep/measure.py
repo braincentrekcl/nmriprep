@@ -3,6 +3,7 @@ from skimage.measure import grid_points_in_poly
 
 from .image import read_tiff
 from .parser import get_roiextract_parser
+from .utils import parse_kv
 
 
 def roi_extract():
@@ -29,21 +30,15 @@ def roi_extract():
                 roi_file.stem.replace(roi_suffix, f'{img_suffix}.tif*')
             ))[0]
             img_data = read_tiff(img_file)
+            img_info = parse_kv(img_file.stem)
 
             roi_df = pd.read_json(roi_file)
-            roi_values.append(
-                roi_df.apply(
-                    lambda x: pd.Series(
-                        [
-                            img_file.stem,
-                            x['names'],
-                            img_data[grid_points_in_poly(img_data.shape, x['data'])],
-                        ],
-                        index=['image', 'roi', 'values'],
-                    ),
-                    axis=1,
-                )
+            out_df = roi_df['names'].apply(parse_kv).apply(pd.Series)
+            out_df['values'] = roi_df['data'].apply(
+                lambda x: img_data[grid_points_in_poly(img_data.shape, x)]
             )
+            out_df = out_df.assign(**img_info)
+            roi_values.append(out_df)
 
         pd.concat(roi_values, ignore_index=True).to_json(
             input_dir / f'{output_name}.json'
