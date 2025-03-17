@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 from skimage.measure import grid_points_in_poly
 
@@ -44,6 +45,12 @@ def roi_extract():
             roi_values.append(out_df)
 
         main_df = pd.concat(roi_values, ignore_index=True)
+        main_df['median_value'] = main_df['values'].apply(np.median)
+        main_df['mean_value'] = main_df['values'].apply(np.mean)
+        main_df['min_value'] = main_df['values'].apply(np.min)
+        main_df['max_value'] = main_df['values'].apply(np.max)
+        main_df['std_value'] = main_df['values'].apply(np.std)
+        main_df['size'] = main_df['values'].apply(len)
         if args.grouping_vars:
             main_df.groupby(
                 args.grouping_vars, as_index=False)[
