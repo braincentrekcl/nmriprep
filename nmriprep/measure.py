@@ -53,7 +53,7 @@ def roi_extract():
         main_df['size'] = main_df['values'].apply(len)
         if args.grouping_vars:
             main_df.groupby(
-                args.grouping_vars, as_index=False)[
+                args.grouping_vars, as_index=False, dropna=False)[
                     ['median_value', 'mean_value', 'min_value', 'max_value', 'std_value', 'size']
                 ].median().to_csv(input_dir / f'{output_name}.csv', index=False)
         else:
