@@ -68,7 +68,6 @@ def get_roiextract_parser():
         help='filename keys to group on',
         nargs='*',
         type=str,
-        default=['subj', 'region', 'hemi', 'slide'],
     )
     parser.add_argument(
         '--output', help='name of output .json file', default='roi_values', type=str
