@@ -9,7 +9,8 @@ def find_files(search_map):
 
 def parse_kv(fname: str) -> dict[str, str]:
     return {
-        k: v for part in fname.split('_')
+        k: v
+        for part in fname.split('_')
         if '-' in part
         for k, v in findall(r'(\w+)-([\w\d]+)', part)
     }

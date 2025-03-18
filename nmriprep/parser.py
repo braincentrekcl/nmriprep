@@ -64,7 +64,11 @@ def get_roiextract_parser():
         '--roi-suffix', help='suffix of ROI .json files', default='rois'
     )
     parser.add_argument(
-        '--grouping-vars', help='filename keys to group on', nargs='*', type=str, default=["subj", "region", "hemi", "slide"]
+        '--grouping-vars',
+        help='filename keys to group on',
+        nargs='*',
+        type=str,
+        default=['subj', 'region', 'hemi', 'slide'],
     )
     parser.add_argument(
         '--output', help='name of output .json file', default='roi_values', type=str

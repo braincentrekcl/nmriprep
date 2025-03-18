@@ -27,10 +27,10 @@ def roi_extract():
         for roi_file in roi_files:
             print(f'Processing {roi_file.name}')
             # read the corresponding image file and confirm it exists
-            img_file = list(input_dir.rglob(
-                roi_file.stem.replace(roi_suffix, f'{img_suffix}.tif*')
-            ))[0]
-            if any(["exclu" in str(path) for path in [img_file, roi_file]]):
+            img_file = list(
+                input_dir.rglob(roi_file.stem.replace(roi_suffix, f'{img_suffix}.tif*'))
+            )[0]
+            if any(['exclu' in str(path) for path in [img_file, roi_file]]):
                 print(f'Excluding {roi_file}')
                 continue
             img_data = read_tiff(img_file)
@@ -52,12 +52,16 @@ def roi_extract():
         main_df['std_value'] = main_df['values'].apply(np.std)
         main_df['size'] = main_df['values'].apply(len)
         if args.grouping_vars:
-            main_df.groupby(
-                args.grouping_vars, as_index=False, dropna=False)[
-                    ['median_value', 'mean_value', 'min_value', 'max_value', 'std_value', 'size']
-                ].median().to_csv(input_dir / f'{output_name}.csv', index=False)
+            main_df.groupby(args.grouping_vars, as_index=False, dropna=False)[
+                [
+                    'median_value',
+                    'mean_value',
+                    'min_value',
+                    'max_value',
+                    'std_value',
+                    'size',
+                ]
+            ].median().to_csv(input_dir / f'{output_name}.csv', index=False)
         else:
-            main_df.to_json(
-                input_dir / f'{output_name}.json'
-            )
+            main_df.to_json(input_dir / f'{output_name}.json')
     return
