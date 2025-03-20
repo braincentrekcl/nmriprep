@@ -10,6 +10,7 @@ from .utils import normalise_by_region, parse_kv
 def summarise_vals(
         df,
         funcs = [np.median, np.mean, np.min, np.max, np.std, len],
+        suggested_id_cols = ['subj', 'slide', 'section', 'hemi', 'region'],
         col='values'
     ):
     """
@@ -17,10 +18,8 @@ def summarise_vals(
     """
     summary = df[col].agg(funcs).to_frame().T  # Aggregate column-wise and transpose
     summary.columns = [f"{func.__name__}_{col}" for func in funcs]
-    return pd.concat(
-        [ df[['subj', 'slide', 'section', 'hemi', 'region']], summary ],
-        axis=1
-    )
+    id_cols = [ col for col in suggested_id_cols if col in df.columns ]
+    return pd.concat([df[id_cols], summary], axis=1)
 
 
 def roi_extract():
