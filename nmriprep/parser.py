@@ -70,6 +70,12 @@ def get_roiextract_parser():
         type=str,
     )
     parser.add_argument(
+        '--norm-regions',
+        help='reference regions to normalise values',
+        nargs='*',
+        type=str,
+    )
+    parser.add_argument(
         '--output', help='name of output .json file', default='roi_values', type=str
     )
     return parser
