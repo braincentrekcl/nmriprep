@@ -10,16 +10,15 @@ from .utils import normalise_by_region, parse_kv
 def summarise_vals(
         df,
         funcs = [np.median, np.mean, np.min, np.max, np.std, len],
-        suggested_id_cols = ['subj', 'slide', 'section', 'hemi', 'region'],
         col='values'
     ):
     """
     Create a summary table of values from within a region
     """
-    summary = df[col].agg(funcs).to_frame().T  # Aggregate column-wise and transpose
-    summary.columns = [f"{func.__name__}_{col}" for func in funcs]
-    id_cols = [ col for col in suggested_id_cols if col in df.columns ]
-    return pd.concat([df[id_cols], summary], axis=1)
+    result_df = df.copy()
+    return result_df.assign(
+        **{f"{func.__name__}_{col}": df[col].apply(func) for func in funcs}
+    ).drop(columns=col)
 
 
 def roi_extract():
