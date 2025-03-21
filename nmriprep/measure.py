@@ -63,7 +63,17 @@ def roi_extract():
         if args.norm_regions:
             for region in args.norm_regions:
                 main_df[f'values_{region}_norm'] = normalise_by_region(main_df, region)
-                summary_df = pd.concat([summary_df, summarise_vals(main_df, col=f'values_{region}_norm')], axis=1)
+                summary_df = pd.concat(
+                    [
+                        summary_df,
+                        summarise_vals(
+                            main_df,
+                            funcs=[np.median, np.mean, np.min, np.max, np.std],
+                            col=f'values_{region}_norm'
+                        )
+                    ],
+                axis=1
+            )
         summary_df.to_csv(input_dir / f"{output_name}_summary.csv")
 
         if args.grouping_vars:
