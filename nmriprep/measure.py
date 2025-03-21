@@ -81,9 +81,10 @@ def roi_extract():
                 args.grouping_vars,
                 as_index=False,
                 dropna=False
-            )[main_df.columns["value" in main_df.columns]].median().to_csv(
-                input_dir / f'{output_name}_grouped_median.csv',
-                index=False
+                ).agg(
+                    {col: lambda x: np.median(np.concatenate([ np.atleast_1d(val) for val in x ])) for col in main_df.columns if "value" in col}
+                # before taking the median, create an aggregate array from all values
+                ).to_csv(input_dir / f'{output_name}_grouped_median.csv', index=False
             )
         else:
             main_df.to_json(input_dir / f'{output_name}.json')
