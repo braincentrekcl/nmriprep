@@ -70,7 +70,7 @@ def roi_extract():
                             main_df,
                             funcs=[np.median, np.mean, np.min, np.max, np.std],
                             col=f'values_{region}_norm'
-                        )
+                        ).iloc[:, -5:]
                     ],
                 axis=1
             )
