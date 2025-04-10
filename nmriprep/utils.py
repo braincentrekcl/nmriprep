@@ -70,6 +70,11 @@ def inverse_rodbard(y, min_, slope, ed50, max_):
 
 def normalise_by_region(df, region):
     region_df = df.query((f'region == "{region}"'))
-    region_df[f'median_{region}_values'] = region_df['values'].apply(np.median)
-    out = df.merge(region_df, on=['subj', 'slide', 'section'], suffixes=("", "_r"))
+    out = df.merge(
+        region_df.assign(
+            **{f'median_{region}_values': region_df['values'].apply(np.median)}
+        ),
+        on=['subj', 'slide', 'section'],
+        suffixes=("", "_r")
+    )
     return out['values'] / out[f'median_{region}_values']
