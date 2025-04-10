@@ -8,16 +8,14 @@ from .utils import normalise_by_region, parse_kv
 
 
 def summarise_vals(
-        df,
-        funcs = [np.median, np.mean, np.min, np.max, np.std, len],
-        col='values'
-    ):
+    df, funcs=[np.median, np.mean, np.min, np.max, np.std, len], col='values'
+):
     """
     Create a summary table of values from within a region
     """
     result_df = df.copy()
     return result_df.assign(
-        **{f"{func.__name__}_{col}": df[col].apply(func) for func in funcs}
+        **{f'{func.__name__}_{col}': df[col].apply(func) for func in funcs}
     ).drop(columns=col)
 
 
@@ -69,23 +67,24 @@ def roi_extract():
                         summarise_vals(
                             main_df,
                             funcs=[np.median, np.mean, np.min, np.max, np.std],
-                            col=f'values_{region}_norm'
-                        ).iloc[:, -5:]
+                            col=f'values_{region}_norm',
+                        ).iloc[:, -5:],
                     ],
-                axis=1
-            )
-        summary_df.to_csv(input_dir / f"{output_name}_summary.csv")
+                    axis=1,
+                )
+        summary_df.to_csv(input_dir / f'{output_name}_summary.csv')
 
         if args.grouping_vars:
-            main_df.groupby(
-                args.grouping_vars,
-                as_index=False,
-                dropna=False
-                ).agg(
-                    {col: lambda x: np.median(np.concatenate([ np.atleast_1d(val) for val in x ])) for col in main_df.columns if "value" in col}
+            main_df.groupby(args.grouping_vars, as_index=False, dropna=False).agg(
+                {
+                    col: lambda x: np.median(
+                        np.concatenate([np.atleast_1d(val) for val in x])
+                    )
+                    for col in main_df.columns
+                    if 'value' in col
+                }
                 # before taking the median, create an aggregate array from all values
-                ).to_csv(input_dir / f'{output_name}_grouped_median.csv', index=False
-            )
+            ).to_csv(input_dir / f'{output_name}_grouped_median.csv', index=False)
         else:
             main_df.to_json(input_dir / f'{output_name}.json')
     return
