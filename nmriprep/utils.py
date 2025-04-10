@@ -75,6 +75,7 @@ def normalise_by_region(df, region):
             **{f'median_{region}_values': region_df['values'].apply(np.median)}
         ),
         on=['subj', 'slide', 'section'],
+        how='left',
         suffixes=("", "_r")
     )
     return out['values'] / out[f'median_{region}_values']
