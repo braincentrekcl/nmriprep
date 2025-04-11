@@ -61,6 +61,7 @@ def roi_extract():
         if args.norm_regions:
             for region in args.norm_regions:
                 main_df[f'values_{region}_norm'] = normalise_by_region(main_df, region)
+                breakpoint()
                 summary_df = pd.merge(
                     summary_df,
                     summarise_vals(
@@ -69,6 +70,7 @@ def roi_extract():
                         col=f'values_{region}_norm'
                     ),
                     how='left',
+                    on=[col for col in summary_df.columns if "value" not in col],
                 )
         summary_df.to_csv(input_dir / f'{output_name}_summary.csv')
 
