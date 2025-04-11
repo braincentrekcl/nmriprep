@@ -72,7 +72,7 @@ def roi_extract():
                     how='left',
                     on=[col for col in summary_df.columns if "value" not in col],
                 )
-        summary_df.to_csv(input_dir / f'{output_name}_summary.csv')
+        summary_df.to_csv(input_dir / f'{output_name}_summary.csv', index=False)
 
         if args.grouping_vars:
             main_df.groupby(args.grouping_vars, as_index=False, dropna=False).agg(
