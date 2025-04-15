@@ -59,18 +59,20 @@ def roi_extract():
         main_df = pd.concat(roi_values, ignore_index=True)
         summary_df = summarise_vals(main_df)
         if args.norm_regions:
+            merge_keys = [col for col in summary_df.columns if 'values' not in col]
             for region in args.norm_regions:
-                main_df[f'values_{region}_norm'] = normalise_by_region(main_df, region)
-                breakpoint()
+                array_col = f'{region}_values'
+                main_df[array_col] = normalise_by_region(main_df, region)
                 summary_df = pd.merge(
                     summary_df,
                     summarise_vals(
-                        main_df,
+                        main_df[merge_keys + [array_col]],
                         funcs=[np.median, np.mean, np.min, np.max, np.std],
-                        col=f'values_{region}_norm'
+                        col=array_col,
                     ),
                     how='left',
-                    on=[col for col in summary_df.columns if "value" not in col],
+                    on=merge_keys,
+                    validate='1:1',
                 )
         summary_df.to_csv(input_dir / f'{output_name}_summary.csv', index=False)
 
