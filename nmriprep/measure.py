@@ -63,8 +63,7 @@ def roi_extract():
             for region in args.norm_regions:
                 array_col = f'{region}_values'
                 main_df[array_col] = normalise_by_region(main_df, region)
-                summary_df = pd.merge(
-                    summary_df,
+                summary_df = summary_df.merge(
                     summarise_vals(
                         main_df[merge_keys + [array_col]],
                         funcs=[np.median, np.mean, np.min, np.max, np.std],
