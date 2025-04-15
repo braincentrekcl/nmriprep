@@ -4,7 +4,19 @@ from skimage.measure import grid_points_in_poly
 
 from .image import read_tiff
 from .parser import get_roiextract_parser
-from .utils import parse_kv
+from .utils import normalise_by_region, parse_kv
+
+
+def summarise_vals(
+    df, funcs=[np.median, np.mean, np.min, np.max, np.std, len], col='values'
+):
+    """
+    Create a summary table of values from within a region
+    """
+    result_df = df.copy()
+    return result_df.assign(
+        **{f'{func.__name__}_{col}': df[col].apply(func) for func in funcs}
+    ).drop(columns=col)
 
 
 def roi_extract():
@@ -45,23 +57,36 @@ def roi_extract():
             roi_values.append(out_df)
 
         main_df = pd.concat(roi_values, ignore_index=True)
-        main_df['median_value'] = main_df['values'].apply(np.median)
-        main_df['mean_value'] = main_df['values'].apply(np.mean)
-        main_df['min_value'] = main_df['values'].apply(np.min)
-        main_df['max_value'] = main_df['values'].apply(np.max)
-        main_df['std_value'] = main_df['values'].apply(np.std)
-        main_df['size'] = main_df['values'].apply(len)
+        summary_df = summarise_vals(main_df)
+        if args.norm_regions:
+            merge_keys = [col for col in summary_df.columns if 'values' not in col]
+            for region in args.norm_regions:
+                array_col = f'{region}_values'
+                main_df[array_col] = normalise_by_region(main_df, region)
+                summary_df = pd.merge(
+                    summary_df,
+                    summarise_vals(
+                        main_df[merge_keys + [array_col]],
+                        funcs=[np.median, np.mean, np.min, np.max, np.std],
+                        col=array_col,
+                    ),
+                    how='left',
+                    on=merge_keys,
+                    validate='1:1',
+                )
+        summary_df.to_csv(input_dir / f'{output_name}_summary.csv', index=False)
+
         if args.grouping_vars:
-            main_df.groupby(args.grouping_vars, as_index=False, dropna=False)[
-                [
-                    'median_value',
-                    'mean_value',
-                    'min_value',
-                    'max_value',
-                    'std_value',
-                    'size',
-                ]
-            ].median().to_csv(input_dir / f'{output_name}.csv', index=False)
+            main_df.groupby(args.grouping_vars, as_index=False, dropna=False).agg(
+                {
+                    col: lambda x: np.median(
+                        np.concatenate([np.atleast_1d(val) for val in x])
+                    )
+                    for col in main_df.columns
+                    if 'value' in col
+                }
+                # before taking the median, create an aggregate array from all values
+            ).to_csv(input_dir / f'{output_name}_grouped_median.csv', index=False)
         else:
             main_df.to_json(input_dir / f'{output_name}.json')
     return

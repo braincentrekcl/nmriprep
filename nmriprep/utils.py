@@ -66,3 +66,18 @@ def inverse_rodbard(y, min_, slope, ed50, max_):
     # https://www.myassays.com/four-parameter-logistic-regression.html
 
     return ed50 * (((min_ - max_) / (y - max_)) - 1.0) ** (1.0 / slope)
+
+
+def normalise_by_region(df, region):
+    region_df = df.query((f'region == "{region}"'))
+    if region_df.duplicated(['subj', 'slide', 'section']).any():
+        raise ValueError("region_df has duplicate keys!")
+    region_df[f'median_{region}_values'] = df['values'].apply(np.median)
+    out = df.merge(
+        region_df,
+        on=['subj', 'slide', 'section'],
+        how='left',
+        suffixes=('', '_r'),
+        validate='m:1',
+    )
+    return out['values'] / out[f'median_{region}_values']
