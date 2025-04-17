@@ -15,7 +15,7 @@ def fieldprep():
 
     if args.flat_field:
         ff_dir = args.flat_field
-        fnames = find_files(ff_dir.glob('*flatfield*.nef'))
+        fnames = find_files(ff_dir.rglob('*flatfield*.nef'))
         if len(fnames) < 1:
             raise FileNotFoundError(f'No flat field files found in {ff_dir.absolute()}')
         
