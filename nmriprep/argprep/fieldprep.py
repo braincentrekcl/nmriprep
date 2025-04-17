@@ -29,8 +29,8 @@ def fieldprep():
                 f'{k}-{v}' for k, v in fname_parts.items() if 'flatfield' not in k
             )
             out_dir = Path(
-                str(subdir).lower().replace('sourcedata', 'preproc')
-            ) if not args.output else args.output
+                str(subdir).replace('sourcedata', 'preproc')
+            ).resolve() if not args.output else args.output
             out_dir.mkdir(parents=True, exist_ok=True)
 
             data = np.median(
