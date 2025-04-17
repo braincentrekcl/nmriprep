@@ -100,7 +100,7 @@ def get_standard_value(array, medfilt_radius=40, square_size=900, roi_fig_name=N
 
 
 def calibrate_standard(
-    sub_id, src_dir, standard_type, flatfield_correction=None, out_dir=None
+    standard_files, standard_type, flatfield_correction=None, out_dir=None
 ):
     from scipy.optimize import curve_fit
 
@@ -110,7 +110,6 @@ def calibrate_standard(
     with importlib.resources.open_text(data, 'standards.json') as f:
         standard_vals = pd.read_json(f)[standard_type].dropna()
 
-    standard_files = find_files(src_dir.glob(f'*subj-{sub_id}*standard*.nef'))
     assert len(standard_files) == len(standard_vals)
 
     standards_df = pd.DataFrame(

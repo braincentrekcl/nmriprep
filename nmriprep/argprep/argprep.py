@@ -9,7 +9,8 @@ from ..utils import find_files, inverse_rodbard, rodbard
 from .calibration import calibrate_standard
 from .fieldprep import find_fields
 
-def subject_workflow(sub_id, src_dir, out_dir, args, verbose):
+def subject_workflow(sub_files, out_dir, args, verbose):
+    sub_id = sub_files[0].parent.stem
     sub_dir = out_dir / sub_id
     sub_dir.mkdir(exist_ok=True, parents=True)
     fig_dir = sub_dir / 'figures'
@@ -28,9 +29,12 @@ def subject_workflow(sub_id, src_dir, out_dir, args, verbose):
         flatfield_correction = None
 
     # calibrate standards to transform GV to radioactivity
+    std_files = [fname for fname in sub_files if "standard" in fname.stem]
+    if len(std_files) < 1:
+        raise FileNotFoundError(f'No standard files found for {sub_id}')
     popt, std_rad, std_gv, std_stem = calibrate_standard(
         sub_id,
-        src_dir,
+        std_files,
         args.standard_type,
         flatfield_correction=flatfield_correction,
         out_dir=sub_dir if verbose else None,
@@ -42,9 +46,9 @@ def subject_workflow(sub_id, src_dir, out_dir, args, verbose):
     print(f'success! fitting data with parameters: {popt}')
 
     # find subject files
-    slide_files = find_files(src_dir.glob(f'*subj-{sub_id}*slide*.nef'))
+    slide_files = [fname for fname in sub_files if "slide" in fname.stem]
     if len(slide_files) < 1:
-        raise FileNotFoundError(f'No slide files found for {sub_id} in {src_dir}')
+        raise FileNotFoundError(f'No slide files found for {sub_id}')
 
     # convert nefs to grey value
     data_gv = np.stack(
@@ -146,19 +150,21 @@ def main():
     fnames = find_files(src_dir.rglob('*.nef'))
     subdirs = defaultdict(list)
     [subdirs[p.parent].append(p) for p in fnames]
-    all_subject_ids = set([subdir.stem for subdir in subdirs.keys()])
+    all_subject_directories = [subdir for subdir in subdirs.keys()]
 
     if args.subject_id:
         print(f'Processing subjects: {args.subject_id}')
         subjects_to_process = [
-            subj for subj in all_subject_ids if subj in args.subject_id
+            subj for subj in all_subject_directories
+            if subj.stem.replace("sub-","") in args.subject_id
         ]
     else:
         print('Processing all subjects')
-        subjects_to_process = all_subject_ids
+        subjects_to_process = all_subject_directories
 
     for sub_id in subjects_to_process:
-        subject_workflow(sub_id, src_dir, out_dir, args, verbose)
+        sub_files = subdirs[sub_id]
+        subject_workflow(sub_files, out_dir, args, verbose)
 
 
 if __name__ == '__main__':
