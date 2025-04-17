@@ -48,6 +48,19 @@ def get_argprep_parser():
     return parser
 
 
+def get_fieldprep_parser():
+    """Build parser object."""
+
+    parser = ArgumentParser(
+        description='Convert dark/flatfield .nef images for processing with argprep',
+        formatter_class=ArgumentDefaultsHelpFormatter,
+    )
+    parser.add_argument('--flat-field', help='Path to directory containing flat field image', type=Path, nargs='*')
+    parser.add_argument('--dark-field', help='Path to directory containing dark field image', type=Path, nargs='*')
+    parser.add_argument('--output', help='Optionally specify output directory', type=Path, nargs='*')
+    return parser
+
+
 def get_roiextract_parser():
     """Build parser object."""
 
