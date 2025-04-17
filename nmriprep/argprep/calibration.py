@@ -113,7 +113,7 @@ def calibrate_standard(
     assert len(standard_files) == len(standard_vals)
     out_stem = '_'.join(
         f'{k}-{v}' for k, v
-        in parse_kv(standard_files[0]).items()
+        in parse_kv(standard_files[0].stem).items()
         if 'standard' not in k
     )
 
