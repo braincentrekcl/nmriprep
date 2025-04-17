@@ -35,5 +35,5 @@ def fieldprep():
             ),
             axis=2,
         )
-        save_slice(data, out_dir / f"{out_stem}_flatfield.tif" )
+        save_slice(data, out_dir / f'{out_stem}_flatfield.tif')
     return
