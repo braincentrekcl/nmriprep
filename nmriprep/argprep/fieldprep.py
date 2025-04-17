@@ -27,7 +27,7 @@ def fieldprep():
         ).mean(axis=2)
         out_stem = '_'.join(
             f'{k}-{v}' for k, v
-            in parse_kv(fnames[0]).items()
+            in parse_kv(fnames[0].stem).items()
             if "flatfield" not in k
         )
         save_slice(data, out_dir / f"{out_stem}_flatfield.tif" )
