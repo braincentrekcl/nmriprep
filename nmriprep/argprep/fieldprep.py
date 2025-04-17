@@ -31,6 +31,6 @@ def fieldprep():
         data = np.stack(
             [convert_nef_to_grey(fname) for fname in fnames],
             axis=2,
-        ).median(axis=2)
-        save_slice(data, out_dir / f'{out_stem}_flatfield.tif')
+        ).mean(axis=2)
+        save_slice(data, out_dir / f"{out_stem}_flatfield.tif" )
     return
