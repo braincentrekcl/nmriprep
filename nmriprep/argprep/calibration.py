@@ -158,7 +158,7 @@ def calibrate_standard(
 
     # save for calibrating slice images
     if out_dir:
-        standards_df.to_json(f'{out_dir / out_stem}_standards.json')
+        standards_df.to_json(out_dir / f'{out_stem}_standards.json')
         with (out_dir / f'{out_stem}_calibration.json').open(mode='w') as f:
             json.dump(dict(zip(['min', 'slope', 'ED50', 'max'], popt)), f)
     return popt, X, y, out_stem
