@@ -1,6 +1,7 @@
-import numpy as np
 from collections import defaultdict
 from pathlib import Path
+
+import numpy as np
 
 from ..image import convert_nef_to_grey, read_tiff, save_slice
 from ..parser import get_fieldprep_parser
@@ -24,7 +25,7 @@ def fieldprep():
         fnames = find_files(ff_dir.rglob('*flatfield*.nef'))
         if len(fnames) < 1:
             raise FileNotFoundError(f'No flat field files found in {ff_dir.absolute()}')
-        
+
         subdirs = defaultdict(list)
         [subdirs[p.parent].append(p) for p in fnames]
 
@@ -34,9 +35,11 @@ def fieldprep():
             out_stem = '_'.join(
                 f'{k}-{v}' for k, v in fname_parts.items() if 'flatfield' not in k
             )
-            out_dir = Path(
-                str(subdir).replace('sourcedata', 'preproc')
-            ).resolve() if not args.output else args.output
+            out_dir = (
+                Path(str(subdir).replace('sourcedata', 'preproc')).resolve()
+                if not args.output
+                else args.output
+            )
             out_dir.mkdir(parents=True, exist_ok=True)
 
             data = np.median(
