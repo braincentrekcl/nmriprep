@@ -33,7 +33,6 @@ def subject_workflow(sub_files, out_dir, args, verbose):
     if len(std_files) < 1:
         raise FileNotFoundError(f'No standard files found for {sub_id}')
     popt, std_rad, std_gv, std_stem = calibrate_standard(
-        sub_id,
         std_files,
         args.standard_type,
         flatfield_correction=flatfield_correction,
