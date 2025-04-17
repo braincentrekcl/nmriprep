@@ -6,7 +6,7 @@ import pandas as pd
 
 from ..image import convert_nef_to_grey
 from ..plotting import plot_roi
-from ..utils import find_files, rodbard
+from ..utils import parse_kv, rodbard
 
 
 def get_image_patch(center_coord, square_apothem: int = 100):
@@ -111,6 +111,11 @@ def calibrate_standard(
         standard_vals = pd.read_json(f)[standard_type].dropna()
 
     assert len(standard_files) == len(standard_vals)
+    out_stem = '_'.join(
+        f'{k}-{v}' for k, v
+        in parse_kv(standard_files[0]).items()
+        if 'standard' not in k
+    )
 
     standards_df = pd.DataFrame(
         {
@@ -141,7 +146,7 @@ def calibrate_standard(
     X = standards_df['radioactivity (uCi/g)']
     y = standards_df['median grey']
     # https://www.myassays.com/four-parameter-logistic-regression.html
-    print(f'fitting Rodbard curve for {standard_files[0].stem[:-3]}')
+    print(f'fitting Rodbard curve for {out_stem}')
     popt, _ = curve_fit(
         rodbard,
         X,
@@ -152,7 +157,6 @@ def calibrate_standard(
     )
 
     # save for calibrating slice images
-    out_stem = standard_files[0].stem[:-3]
     if out_dir:
         standards_df.to_json(f'{out_dir / out_stem}_standards.json')
         with (out_dir / f'{out_stem}_calibration.json').open(mode='w') as f:

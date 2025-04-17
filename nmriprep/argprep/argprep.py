@@ -75,8 +75,6 @@ def subject_workflow(sub_files, out_dir, args, verbose):
     data_radioactivity[np.isnan(data_radioactivity)] = 0
     print('Success! Generating output...')
 
-    out_stem = std_stem.split('_standard')[0]
-
     if args.save_nii:
         # write out nii image (e.g. for Jim)
         # find information on number of slides from last file name
@@ -102,7 +100,7 @@ def subject_workflow(sub_files, out_dir, args, verbose):
                 data_radioactivity[..., sorted(slide_sections.values())],
                 affine=None,
             ).to_filename(
-                sub_dir / f'{out_stem}_slide-{slide_val}_desc-preproc_ARG.nii.gz'
+                sub_dir / f'{std_stem}_slide-{slide_val}_desc-preproc_ARG.nii.gz'
             )
 
     if args.save_tif:
@@ -137,7 +135,7 @@ def subject_workflow(sub_files, out_dir, args, verbose):
             if -1 in args.mosaic_slices
             else data_radioactivity[..., args.mosaic_slices]
         )
-        plot_mosaic(sliced, out_dir / f'{out_stem}_desc-preproc_ARG.png')
+        plot_mosaic(sliced, out_dir / f'{std_stem}_desc-preproc_ARG.png')
 
 
 def main():
