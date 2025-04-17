@@ -48,7 +48,7 @@ def main():
         flatfield_correction['flat'] = find_fields(
             args.flat_field, sub_dir.glob('*flatfield.tif*')
         )
-        if not all(flatfield_correction.values()):
+        if any(v is None for v in flatfield_correction.values()):
             print('Skipping flat field correction...')
             flatfield_correction = None
 
