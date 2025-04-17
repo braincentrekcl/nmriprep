@@ -18,17 +18,19 @@ def fieldprep():
             raise FileNotFoundError(
                 f'No flat field files found in {ff_dir.absolute()}'
             )
-        out_dir = ff_dir.parent / 'preproc' if not args.output else args.output
+
+        fname_parts = parse_kv(fnames[0].stem)
+        out_stem = '_'.join(
+            f'{k}-{v}' for k, v
+            in fname_parts.items()
+            if "flatfield" not in k
+        )
+        out_dir = ff_dir.parents[1] / 'preproc' / f"sub-{fname_parts['sub']}" if not args.output else args.output
         out_dir.mkdir(parents=True, exist_ok=True)
 
         data = np.stack(
             [ convert_nef_to_grey(fname) for fname in fnames] ,
             axis=2,
         ).mean(axis=2)
-        out_stem = '_'.join(
-            f'{k}-{v}' for k, v
-            in parse_kv(fnames[0].stem).items()
-            if "flatfield" not in k
-        )
         save_slice(data, out_dir / f"{out_stem}_flatfield.tif" )
     return
