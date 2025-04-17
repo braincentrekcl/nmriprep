@@ -1,3 +1,4 @@
+from collections import defaultdict
 import nibabel as nb
 import numpy as np
 
@@ -142,14 +143,10 @@ def main():
     verbose = args.save_intermediate
 
     # identify subjects for pipeline
-    all_subject_ids = set(
-        [
-            part.split('-')[1]
-            for fpath in src_dir.glob('*.nef')
-            for part in fpath.stem.split('_')
-            if 'subj' in part
-        ]
-    )
+    fnames = find_files(src_dir.rglob('*.nef'))
+    subdirs = defaultdict(list)
+    [subdirs[p.parent].append(p) for p in fnames]
+    all_subject_ids = set([subdir.stem for subdir in subdirs.keys()])
 
     if args.subject_id:
         print(f'Processing subjects: {args.subject_id}')
