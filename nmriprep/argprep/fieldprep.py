@@ -2,9 +2,15 @@ import numpy as np
 from collections import defaultdict
 from pathlib import Path
 
-from ..image import convert_nef_to_grey, save_slice
+from ..image import convert_nef_to_grey, read_tiff, save_slice
 from ..parser import get_fieldprep_parser
 from ..utils import find_files, parse_kv
+
+
+def find_fields(user=None, search_map=None):
+    fieldpath = user if user is not None else find_files(search_map)[-1]
+    field = read_tiff(fieldpath) if fieldpath else None
+    return field
 
 
 def fieldprep():

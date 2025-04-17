@@ -1,11 +1,12 @@
 import nibabel as nb
 import numpy as np
 
-from ..image import convert_nef_to_grey, read_tiff, save_slice
+from ..image import convert_nef_to_grey, save_slice
 from ..parser import get_argprep_parser
 from ..plotting import plot_curve, plot_mosaic, plot_single_slice
 from ..utils import find_files, inverse_rodbard, rodbard
 from .calibration import calibrate_standard
+from .fieldprep import find_fields
 
 
 def main():
@@ -16,19 +17,11 @@ def main():
 
     # attempt to find flat field info
     flatfield_correction = {}
-    if args.dark_field and args.flat_field:
-        flatfield_correction['dark'] = read_tiff(args.dark_field)
-        flatfield_correction['flat'] = read_tiff(args.flat_field)
-    else:
-        # try searching for a preprocessed darkfield
-        latest_ff = find_files(out_dir.glob('*flatfield.tiff'))
-        latest_df = find_files(out_dir.glob('*darkfield.tiff'))
-        if latest_ff and latest_df:
-            flatfield_correction['dark'] = read_tiff(latest_df[-1])
-            flatfield_correction['flat'] = read_tiff(latest_ff[-1])
-        else:
-            print('Skipping flat field correction...')
-            flatfield_correction = None
+    flatfield_correction['dark'] = find_fields(args.dark_field, out_dir.glob('*darkfield.tif*'))
+    flatfield_correction['flat'] = find_fields(args.flat_field, out_dir.glob('*flatfield.tif*'))
+    if not all(flatfield_correction.values()):
+        print('Skipping flat field correction...')
+        flatfield_correction = None
 
     # identify subjects for pipeline
     all_subject_ids = set(
