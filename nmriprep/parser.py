@@ -55,9 +55,15 @@ def get_fieldprep_parser():
         description='Convert dark/flatfield .nef images for processing with argprep',
         formatter_class=ArgumentDefaultsHelpFormatter,
     )
-    parser.add_argument('--flat-field', help='Path to directory containing flat field image', type=Path)
-    parser.add_argument('--dark-field', help='Path to directory containing dark field image', type=Path)
-    parser.add_argument('--output', help='Optionally specify output directory', type=Path)
+    parser.add_argument(
+        '--flat-field', help='Path to directory containing flat field image', type=Path
+    )
+    parser.add_argument(
+        '--dark-field', help='Path to directory containing dark field image', type=Path
+    )
+    parser.add_argument(
+        '--output', help='Optionally specify output directory', type=Path
+    )
     return parser
 
 
