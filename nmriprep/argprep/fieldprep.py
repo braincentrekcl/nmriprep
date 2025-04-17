@@ -1,4 +1,6 @@
 import numpy as np
+from collections import defaultdict
+from pathlib import Path
 
 from ..image import convert_nef_to_grey, save_slice
 from ..parser import get_fieldprep_parser
@@ -16,24 +18,27 @@ def fieldprep():
         fnames = find_files(ff_dir.glob('*flatfield*.nef'))
         if len(fnames) < 1:
             raise FileNotFoundError(f'No flat field files found in {ff_dir.absolute()}')
+        
+        subdirs = defaultdict(list)
+        [subdirs[p.parent].append(p) for p in fnames]
 
-        fname_parts = parse_kv(fnames[0].stem)
-        out_stem = '_'.join(
-            f'{k}-{v}' for k, v in fname_parts.items() if 'flatfield' not in k
-        )
-        out_dir = (
-            ff_dir.parents[1] / 'preproc' / f'sub-{fname_parts["sub"]}'
-            if not args.output
-            else args.output
-        )
-        out_dir.mkdir(parents=True, exist_ok=True)
+        for subdir in subdirs.keys():
+            sub_files = subdirs[subdir]
+            fname_parts = parse_kv(sub_files[0].stem)
+            out_stem = '_'.join(
+                f'{k}-{v}' for k, v in fname_parts.items() if 'flatfield' not in k
+            )
+            out_dir = Path(
+                subdir.str.lower().replace('sourcedata', 'preproc')
+            ) if not args.output else args.output
+            out_dir.mkdir(parents=True, exist_ok=True)
 
-        data = np.median(
-            np.stack(
-                [convert_nef_to_grey(fname) for fname in fnames],
+            data = np.median(
+                np.stack(
+                    [convert_nef_to_grey(fname) for fname in sub_files],
+                    axis=2,
+                ),
                 axis=2,
-            ),
-            axis=2,
-        )
-        save_slice(data, out_dir / f'{out_stem}_flatfield.tif')
+            )
+            save_slice(data, out_dir / f'{out_stem}_flatfield.tif')
     return
