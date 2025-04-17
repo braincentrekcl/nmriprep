@@ -28,9 +28,12 @@ def fieldprep():
         )
         out_dir.mkdir(parents=True, exist_ok=True)
 
-        data = np.stack(
-            [convert_nef_to_grey(fname) for fname in fnames],
+        data = np.median(
+            np.stack(
+                [convert_nef_to_grey(fname) for fname in fnames],
+                axis=2,
+            ),
             axis=2,
-        ).mean(axis=2)
+        )
         save_slice(data, out_dir / f"{out_stem}_flatfield.tif" )
     return
