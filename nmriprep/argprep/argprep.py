@@ -9,7 +9,7 @@ from ..utils import find_files, inverse_rodbard, rodbard
 from .calibration import calibrate_standard
 from .fieldprep import find_fields
 
-def subject_workflow(sub_files, out_dir, args, verbose):
+def subject_workflow(sub_files, src_dir, out_dir, args, verbose):
     sub_id = sub_files[0].parent.stem
     sub_dir = out_dir / sub_id
     sub_dir.mkdir(exist_ok=True, parents=True)
@@ -34,7 +34,7 @@ def subject_workflow(sub_files, out_dir, args, verbose):
         raise FileNotFoundError(f'No standard files found for {sub_id}')
     popt, std_rad, std_gv, std_stem = calibrate_standard(
         std_files,
-        args.standard_type,
+        src_dir,
         flatfield_correction=flatfield_correction,
         out_dir=sub_dir if verbose else None,
     )
@@ -161,7 +161,7 @@ def main():
 
     for sub_id in subjects_to_process:
         sub_files = subdirs[sub_id]
-        subject_workflow(sub_files, out_dir, args, verbose)
+        subject_workflow(sub_files, src_dir, out_dir, args, verbose)
 
 
 if __name__ == '__main__':

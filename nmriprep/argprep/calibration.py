@@ -13,6 +13,15 @@ def get_image_patch(center_coord, square_apothem: int = 100):
     return slice(center_coord - square_apothem, center_coord + square_apothem)
 
 
+def get_dataset_standard(source_dir):
+    if not (source_dir / 'dataset_description.json').exists():
+        raise FileNotFoundError(f"Dataset description file missing from {source_dir.resolve()}")
+    with (source_dir / 'dataset_description.json').open('r') as fname:
+        standard_info = json.load(fname)['standard']
+        range_type = standard_info['range'] if 'range' in standard_info.keys().lower() else 'default'
+    return (standard_info['isotope'], range_type)
+
+
 def get_standard_value(array, medfilt_radius=40, square_size=900, roi_fig_name=None):
     import statistics
 
@@ -100,15 +109,16 @@ def get_standard_value(array, medfilt_radius=40, square_size=900, roi_fig_name=N
 
 
 def calibrate_standard(
-    standard_files, standard_type, flatfield_correction=None, out_dir=None
+    standard_files, src_dir, flatfield_correction=None, out_dir=None
 ):
     from scipy.optimize import curve_fit
 
     from .. import data
 
     # load standard information
+    isotope, range_type = get_dataset_standard(src_dir)
     with importlib.resources.open_text(data, 'standards.json') as f:
-        standard_vals = pd.read_json(f)[standard_type].dropna()
+        standard_vals = pd.Series(json.load(f)[isotope][range_type])
 
     assert len(standard_files) == len(standard_vals)
     out_stem = '_'.join(
