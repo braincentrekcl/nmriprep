@@ -18,7 +18,7 @@ def get_dataset_standard(source_dir):
         raise FileNotFoundError(f"Dataset description file missing from {source_dir.resolve()}")
     with (source_dir / 'dataset_description.json').open('r') as fname:
         standard_info = json.load(fname)['standard']
-        range_type = standard_info['range'] if 'range' in standard_info.keys().lower() else 'default'
+        range_type = standard_info['range'] if 'range' in standard_info.keys() else 'default'
     return (standard_info['isotope'], range_type)
 
 
