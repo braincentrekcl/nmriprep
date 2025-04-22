@@ -9,9 +9,6 @@ def get_argprep_parser():
         description='Convert .nef image to .nii with uCi/g voxels',
         formatter_class=ArgumentDefaultsHelpFormatter,
     )
-    parser.add_argument(
-        'standard_type', help='radioisotope of standards', choices=['H3', 'C14']
-    )
     parser.add_argument('source_directory', help='raw data directory', type=Path)
     parser.add_argument('--flat-field', help='Path to flat field image', type=Path)
     parser.add_argument('--dark-field', help='Path to dark field image', type=Path)
