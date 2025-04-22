@@ -29,11 +29,8 @@ def subject_workflow(sub_files, src_dir, out_dir, args, verbose):
         flatfield_correction = None
 
     # calibrate standards to transform GV to radioactivity
-    std_files = [fname for fname in sub_files if "standard" in fname.stem]
-    if len(std_files) < 1:
-        raise FileNotFoundError(f'No standard files found for {sub_id}')
     popt, std_rad, std_gv, std_stem = calibrate_standard(
-        std_files,
+        sub_files,
         src_dir,
         flatfield_correction=flatfield_correction,
         out_dir=sub_dir if verbose else None,
