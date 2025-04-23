@@ -57,7 +57,7 @@ def get_standard_value(array, medfilt_radius=40, square_size=900, roi_fig_name=N
         for peak1, peak2 in zip(peak_loc[:-1], peak_loc[1:]):
             troughs = trough_loc[np.logical_and(trough_loc > peak1, trough_loc < peak2)]
             thresholds.append(
-                min(troughs) if troughs else statistics.mean([peak1, peak2])
+                min(troughs) if len(troughs) > 0 else statistics.mean([peak1, peak2])
             )
             regions = np.digitize(gray_medfilt, bins=thresholds)
 
