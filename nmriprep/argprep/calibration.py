@@ -6,11 +6,20 @@ import pandas as pd
 
 from ..image import convert_nef_to_grey
 from ..plotting import plot_roi
-from ..utils import find_files, rodbard
+from ..utils import parse_kv, rodbard
 
 
 def get_image_patch(center_coord, square_apothem: int = 100):
     return slice(center_coord - square_apothem, center_coord + square_apothem)
+
+
+def get_dataset_standard(source_dir):
+    if not (source_dir / 'dataset_description.json').exists():
+        raise FileNotFoundError(f"Dataset description file missing from {source_dir.resolve()}")
+    with (source_dir / 'dataset_description.json').open('r') as fname:
+        standard_info = json.load(fname)['standard']
+        range_type = standard_info['range'] if 'range' in standard_info.keys() else 'default'
+    return (standard_info['isotope'], range_type)
 
 
 def get_standard_value(array, medfilt_radius=40, square_size=900, roi_fig_name=None):
@@ -48,7 +57,7 @@ def get_standard_value(array, medfilt_radius=40, square_size=900, roi_fig_name=N
         for peak1, peak2 in zip(peak_loc[:-1], peak_loc[1:]):
             troughs = trough_loc[np.logical_and(trough_loc > peak1, trough_loc < peak2)]
             thresholds.append(
-                min(troughs) if troughs else statistics.mean([peak1, peak2])
+                min(troughs) if len(troughs) > 0 else statistics.mean([peak1, peak2])
             )
             regions = np.digitize(gray_medfilt, bins=thresholds)
 
@@ -100,18 +109,30 @@ def get_standard_value(array, medfilt_radius=40, square_size=900, roi_fig_name=N
 
 
 def calibrate_standard(
-    sub_id, src_dir, standard_type, flatfield_correction=None, out_dir=None
+    sub_files, src_dir, flatfield_correction=None, out_dir=None
 ):
     from scipy.optimize import curve_fit
 
     from .. import data
 
     # load standard information
+    isotope, range_type = get_dataset_standard(src_dir)
     with importlib.resources.open_text(data, 'standards.json') as f:
-        standard_vals = pd.read_json(f)[standard_type].dropna()
+        standard_vals = pd.Series(json.load(f)[isotope][range_type])
 
-    standard_files = find_files(src_dir.glob(f'*subj-{sub_id}*standard*.nef'))
-    assert len(standard_files) == len(standard_vals)
+    standard_files = [fname for fname in sub_files if f"standard-{isotope}" in fname.stem]
+    if len(standard_files) < 1:
+        raise FileNotFoundError(f'No {isotope} standard files found in {sub_files[0].parent}')
+    if len(standard_files) != len(standard_vals):
+        # try filtering standard files by range type in case there are two sets of standard images
+        standard_files = [fname for fname in standard_files if f"range-{range_type}" in fname.stem]
+        if len(standard_files) != len(standard_vals):
+            raise RuntimeError(f"Number of standard files {len(standard_files)} does not match standard values")
+    out_stem = '_'.join(
+        f'{k}-{v}' for k, v
+        in parse_kv(standard_files[0].stem).items()
+        if 'standard' not in k
+    )
 
     standards_df = pd.DataFrame(
         {
@@ -142,7 +163,7 @@ def calibrate_standard(
     X = standards_df['radioactivity (uCi/g)']
     y = standards_df['median grey']
     # https://www.myassays.com/four-parameter-logistic-regression.html
-    print(f'fitting Rodbard curve for {standard_files[0].stem[:-3]}')
+    print(f'fitting Rodbard curve for {out_stem}')
     popt, _ = curve_fit(
         rodbard,
         X,
@@ -153,9 +174,8 @@ def calibrate_standard(
     )
 
     # save for calibrating slice images
-    out_stem = standard_files[0].stem[:-3]
     if out_dir:
-        standards_df.to_json(f'{out_dir / out_stem}_standards.json')
+        standards_df.to_json(out_dir / f'{out_stem}_standards.json')
         with (out_dir / f'{out_stem}_calibration.json').open(mode='w') as f:
             json.dump(dict(zip(['min', 'slope', 'ED50', 'max'], popt)), f)
     return popt, X, y, out_stem
