@@ -62,7 +62,7 @@ def roi_extract():
             merge_keys = [col for col in summary_df.columns if 'values' not in col]
             for region in args.norm_regions:
                 array_col = f'{region}_values'
-                main_df[array_col] = normalise_by_region(main_df, region)
+                main_df[array_col] = normalise_by_region(main_df, region, measure=args.norm_measure)
                 summary_df = summary_df.merge(
                     summarise_vals(
                         main_df[merge_keys + [array_col]],

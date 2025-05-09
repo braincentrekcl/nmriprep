@@ -92,6 +92,13 @@ def get_roiextract_parser():
         type=str,
     )
     parser.add_argument(
+        '--norm-measure',
+        help='summary statistic for normalisation',
+        choices=['mean', 'median', 'mode'],
+        default='median',
+        type=str,
+    )
+    parser.add_argument(
         '--output', help='name of output .json file', default='roi_values', type=str
     )
     return parser
