@@ -94,7 +94,7 @@ def get_roiextract_parser():
     parser.add_argument(
         '--norm-measure',
         help='summary statistic for normalisation',
-        choices=['mean', 'median', 'mode'],
+        choices=['mean', 'median'],
         default='median',
         type=str,
     )
