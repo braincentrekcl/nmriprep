@@ -69,10 +69,11 @@ def inverse_rodbard(y, min_, slope, ed50, max_):
 
 
 def normalise_by_region(df, region, measure='median'):
+    summary_measure = {'mean': np.mean, 'median': np.median}[measure]
     region_df = df.query((f'region == "{region}"'))
     if region_df.duplicated(['sub', 'slide', 'section']).any():
         raise ValueError('region_df has duplicate keys!')
-    region_df[f'{measure}_{region}_values'] = df['values'].apply(np.median)
+    region_df[f'{measure}_{region}_values'] = df['values'].apply(summary_measure)
     out = df.merge(
         region_df,
         on=['sub', 'slide', 'section'],
