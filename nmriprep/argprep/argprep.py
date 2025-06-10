@@ -5,7 +5,7 @@ import numpy as np
 from ..image import convert_nef_to_grey, save_slice
 from ..parser import get_argprep_parser
 from ..plotting import plot_curve, plot_mosaic, plot_single_slice
-from ..utils import find_files, inverse_rodbard, rodbard
+from ..utils import find_files, inverse_rodbard, rodbard, parse_kv
 from .calibration import calibrate_standard
 from .fieldprep import find_fields
 
@@ -158,7 +158,13 @@ def main():
 
     for sub_id in subjects_to_process:
         sub_files = subdirs[sub_id]
-        subject_workflow(sub_files, src_dir, out_dir, args, verbose)
+        if "film" in sub_files[0].stem:
+            subfilms = defaultdict(list)
+            [ subfilms[parse_kv(fname.stem)['film']].append(fname) for fname in sub_files ]
+            for film_idx in subfilms.keys():
+                subject_workflow(subfilms[film_idx], src_dir, out_dir, args, verbose)
+        else:
+            subject_workflow(sub_files, src_dir, out_dir, args, verbose)
 
 
 if __name__ == '__main__':
