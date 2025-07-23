@@ -1,13 +1,15 @@
 from collections import defaultdict
+
 import nibabel as nb
 import numpy as np
 
 from ..image import convert_nef_to_grey, save_slice
 from ..parser import get_argprep_parser
 from ..plotting import plot_curve, plot_mosaic, plot_single_slice
-from ..utils import find_files, inverse_rodbard, rodbard, parse_kv
+from ..utils import find_files, inverse_rodbard, parse_kv, rodbard
 from .calibration import calibrate_standard
 from .fieldprep import find_fields
+
 
 def subject_workflow(sub_files, src_dir, out_dir, args, verbose):
     sub_id = sub_files[0].parent.stem
@@ -42,7 +44,7 @@ def subject_workflow(sub_files, src_dir, out_dir, args, verbose):
     print(f'success! fitting data with parameters: {popt}')
 
     # find subject files
-    slide_files = [fname for fname in sub_files if "slide" in fname.stem]
+    slide_files = [fname for fname in sub_files if 'slide' in fname.stem]
     if len(slide_files) < 1:
         raise FileNotFoundError(f'No slide files found for {sub_id}')
 
@@ -149,8 +151,9 @@ def main():
     if args.subject_id:
         print(f'Processing subjects: {args.subject_id}')
         subjects_to_process = [
-            subj for subj in all_subject_directories
-            if subj.stem.replace("sub-","") in args.subject_id
+            subj
+            for subj in all_subject_directories
+            if subj.stem.replace('sub-', '') in args.subject_id
         ]
     else:
         print('Processing all subjects')
@@ -158,9 +161,12 @@ def main():
 
     for sub_id in subjects_to_process:
         sub_files = subdirs[sub_id]
-        if "film" in sub_files[0].stem:
+        if 'film' in sub_files[0].stem:
             subfilms = defaultdict(list)
-            [ subfilms[parse_kv(fname.stem)['film']].append(fname) for fname in sub_files ]
+            [
+                subfilms[parse_kv(fname.stem)['film']].append(fname)
+                for fname in sub_files
+            ]
             for film_idx in subfilms.keys():
                 subject_workflow(subfilms[film_idx], src_dir, out_dir, args, verbose)
         else:

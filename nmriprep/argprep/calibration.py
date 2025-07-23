@@ -15,10 +15,14 @@ def get_image_patch(center_coord, square_apothem: int = 100):
 
 def get_dataset_standard(source_dir):
     if not (source_dir / 'dataset_description.json').exists():
-        raise FileNotFoundError(f"Dataset description file missing from {source_dir.resolve()}")
+        raise FileNotFoundError(
+            f'Dataset description file missing from {source_dir.resolve()}'
+        )
     with (source_dir / 'dataset_description.json').open('r') as fname:
         standard_info = json.load(fname)['standard']
-        range_type = standard_info['range'] if 'range' in standard_info.keys() else 'default'
+        range_type = (
+            standard_info['range'] if 'range' in standard_info.keys() else 'default'
+        )
     return (standard_info['isotope'], range_type)
 
 
@@ -108,9 +112,7 @@ def get_standard_value(array, medfilt_radius=40, square_size=900, roi_fig_name=N
     return np.median(gray[roi])
 
 
-def calibrate_standard(
-    sub_files, src_dir, flatfield_correction=None, out_dir=None
-):
+def calibrate_standard(sub_files, src_dir, flatfield_correction=None, out_dir=None):
     from scipy.optimize import curve_fit
 
     from .. import data
@@ -120,17 +122,25 @@ def calibrate_standard(
     with importlib.resources.open_text(data, 'standards.json') as f:
         standard_vals = pd.Series(json.load(f)[isotope][range_type])
 
-    standard_files = [fname for fname in sub_files if f"standard-{isotope}" in fname.stem]
+    standard_files = [
+        fname for fname in sub_files if f'standard-{isotope}' in fname.stem
+    ]
     if len(standard_files) < 1:
-        raise FileNotFoundError(f'No {isotope} standard files found in {sub_files[0].parent}')
+        raise FileNotFoundError(
+            f'No {isotope} standard files found in {sub_files[0].parent}'
+        )
     if len(standard_files) != len(standard_vals):
         # try filtering standard files by range type in case there are two sets of standard images
-        standard_files = [fname for fname in standard_files if f"range-{range_type}" in fname.stem]
+        standard_files = [
+            fname for fname in standard_files if f'range-{range_type}' in fname.stem
+        ]
         if len(standard_files) != len(standard_vals):
-            raise RuntimeError(f"Number of standard files {len(standard_files)} does not match standard values")
+            raise RuntimeError(
+                f'Number of standard files {len(standard_files)} does not match standard values'
+            )
     out_stem = '_'.join(
-        f'{k}-{v}' for k, v
-        in parse_kv(standard_files[0].stem).items()
+        f'{k}-{v}'
+        for k, v in parse_kv(standard_files[0].stem).items()
         if 'standard' not in k
     )
 

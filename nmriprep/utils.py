@@ -74,11 +74,9 @@ def normalise_by_region(df, region, measure='median'):
     if region_df.duplicated(['sub', 'slide', 'section']).any():
         # hemisphere duplicates are allowed, but those are the only exception
         if not region_df.duplicated(['sub', 'slide', 'section', 'hemi']).any():
-            region_df = (
-                region_df
-                .groupby(['sub', 'slide', 'section'], as_index=False)
-                .agg({'values': lambda arrs: np.concatenate(arrs.values)})
-            )
+            region_df = region_df.groupby(
+                ['sub', 'slide', 'section'], as_index=False
+            ).agg({'values': lambda arrs: np.concatenate(arrs.values)})
         else:
             raise ValueError('region_df has duplicate keys!')
     region_df[f'{measure}_{region}_values'] = df['values'].apply(summary_measure)
