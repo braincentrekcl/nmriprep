@@ -87,7 +87,7 @@ def roi_extract():
                     if 'value' in col
                 }
                 # before taking the median, create an aggregate array from all values
-            ).to_csv(input_dir / f'{output_name}_grouped_median.csv', index=False)
+            ).to_csv(input_dir / f'{output_name}_grouped_{args.norm_measure}.csv', index=False)
         else:
             main_df.to_json(input_dir / f'{output_name}.json')
     return
