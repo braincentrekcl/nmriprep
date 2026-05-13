@@ -62,7 +62,9 @@ def roi_extract():
             merge_keys = [col for col in summary_df.columns if 'values' not in col]
             for region in args.norm_regions:
                 array_col = f'{region}_values'
-                main_df[array_col] = normalise_by_region(main_df, region)
+                main_df[array_col] = normalise_by_region(
+                    main_df, region, measure=args.norm_measure
+                )
                 summary_df = summary_df.merge(
                     summarise_vals(
                         main_df[merge_keys + [array_col]],
@@ -85,7 +87,10 @@ def roi_extract():
                     if 'value' in col
                 }
                 # before taking the median, create an aggregate array from all values
-            ).to_csv(input_dir / f'{output_name}_grouped_median.csv', index=False)
+            ).to_csv(
+                input_dir / f'{output_name}_grouped_{args.norm_measure}.csv',
+                index=False,
+            )
         else:
             main_df.to_json(input_dir / f'{output_name}.json')
     return

@@ -68,16 +68,35 @@ def inverse_rodbard(y, min_, slope, ed50, max_):
     return ed50 * (((min_ - max_) / (y - max_)) - 1.0) ** (1.0 / slope)
 
 
-def normalise_by_region(df, region):
+def normalise_by_region(
+    df, region, measure='median', replicate_factors=['sub', 'slide', 'section']
+):
+    if 'film' in df.columns and 'film' not in replicate_factors:
+        replicate_factors.append('film')
+    summary_measure = {'mean': np.mean, 'median': np.median}[measure]
     region_df = df.query((f'region == "{region}"'))
-    if region_df.duplicated(['subj', 'slide', 'section']).any():
-        raise ValueError('region_df has duplicate keys!')
-    region_df[f'median_{region}_values'] = df['values'].apply(np.median)
+    if region_df.duplicated(replicate_factors).any():
+        full_combination = replicate_factors + [
+            col for col in ['hemi', 'replicate'] if col in region_df.columns
+        ]
+        if not region_df.duplicated(full_combination).any():
+            # hemispheres, films, and explicitly named replicates
+            # are allowed, but those are the only exceptions
+            region_df = region_df.groupby(replicate_factors, as_index=False).agg(
+                {'values': lambda arrs: np.concatenate(arrs.values)}
+            )
+        else:
+            duplicates = region_df[region_df.duplicated(full_combination, keep=False)]
+            raise ValueError(f'region_df has duplicate keys!\n{duplicates}')
+    # replace 0 with a very small number to avoid inf values
+    region_df[f'{measure}_{region}_values'] = (
+        region_df['values'].apply(summary_measure).replace(0, 1e-12)
+    )
     out = df.merge(
         region_df,
-        on=['subj', 'slide', 'section'],
+        on=replicate_factors,
         how='left',
         suffixes=('', '_r'),
         validate='m:1',
     )
-    return out['values'] / out[f'median_{region}_values']
+    return out['values'] / out[f'{measure}_{region}_values']
