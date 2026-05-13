@@ -69,11 +69,8 @@ def inverse_rodbard(y, min_, slope, ed50, max_):
 
 
 def normalise_by_region(
-        df,
-        region,
-        measure='median',
-        replicate_factors=['sub', 'slide', 'section']
-    ):
+    df, region, measure='median', replicate_factors=['sub', 'slide', 'section']
+):
     if 'film' in df.columns and 'film' not in replicate_factors:
         replicate_factors.append('film')
     summary_measure = {'mean': np.mean, 'median': np.median}[measure]
@@ -85,17 +82,16 @@ def normalise_by_region(
         if not region_df.duplicated(full_combination).any():
             # hemispheres, films, and explicitly named replicates
             # are allowed, but those are the only exceptions
-            region_df = region_df.groupby(
-                replicate_factors, as_index=False
-            ).agg({'values': lambda arrs: np.concatenate(arrs.values)})
-        else:
-            raise ValueError(
-                f'region_df has duplicate keys!\n{
-                    region_df[region_df.duplicated(full_combination, keep=False)]
-                }'
+            region_df = region_df.groupby(replicate_factors, as_index=False).agg(
+                {'values': lambda arrs: np.concatenate(arrs.values)}
             )
+        else:
+            duplicates = region_df[region_df.duplicated(full_combination, keep=False)]
+            raise ValueError(f'region_df has duplicate keys!\n{duplicates}')
     # replace 0 with a very small number to avoid inf values
-    region_df[f'{measure}_{region}_values'] = region_df['values'].apply(summary_measure).replace(0,  1e-12)
+    region_df[f'{measure}_{region}_values'] = (
+        region_df['values'].apply(summary_measure).replace(0, 1e-12)
+    )
     out = df.merge(
         region_df,
         on=replicate_factors,
