@@ -36,6 +36,7 @@ Homepage = "https://github.com/brainkcl/nmriprep"
 
 [project.scripts]
 argprep = "nmriprep.argprep.argprep:main"
+fieldprep = "nmriprep.argprep.fieldprep:fieldprep"
 roi_extract = "nmriprep.measure:roi_extract"
 
 [tool.hatch.build]
